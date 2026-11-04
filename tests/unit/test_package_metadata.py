@@ -76,17 +76,24 @@ def test_repaired_pip_stays_in_the_dev_lock_and_out_of_runtime() -> None:
     assert _version_at_least(_locked_version("pip"), (26, 2, 2))
 
 
+def test_runtime_pyasn1_floor_is_in_project_metadata_and_the_lock() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert "pyasn1>=0.6.5" in pyproject["project"]["dependencies"]
+    assert _version_at_least(_locked_version("pyasn1"), (0, 6, 5))
+
+
 def test_remaining_audit_floors_are_in_metadata_and_the_lock() -> None:
     """Keep the packages pip-audit still flagged on 2026-10-24 above their fixes."""
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     extra = pyproject["project"]["optional-dependencies"]["entailment"]
 
-    assert "pypdf>=6.21.2" in pyproject["project"]["dependencies"]
+    assert "pypdf>=6.21.4" in pyproject["project"]["dependencies"]
     assert "opentelemetry-api>=1.45.1" in pyproject["project"]["dependencies"]
     assert "filelock>=4.2.1,<5" in extra
     assert "setuptools>=84.1.0" in extra
     assert "virtualenv>=21.14.9" in pyproject["dependency-groups"]["dev"]
-    assert _version_at_least(_locked_version("pypdf"), (6, 21, 2))
+    assert _version_at_least(_locked_version("pypdf"), (6, 21, 4))
     assert _version_at_least(_locked_version("opentelemetry-api"), (1, 45, 1))
     assert _version_at_least(_locked_version("filelock"), (4, 2, 1))
     assert _version_at_least(_locked_version("setuptools"), (84, 1, 0))

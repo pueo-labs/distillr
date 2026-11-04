@@ -54,10 +54,9 @@ dependencies = [
     "jinja2>=3.1.0",
     "markdown>=3.5.0",
     "nh3>=0.2.0",
-    # 6.21.2 stops crafted PDFs from forcing repeated full-file recovery loads
-    # and bounds a standard cross-reference table. PdfReader and PdfWriter stay
-    # the extraction API.
-    "pypdf>=6.21.2",
+    # 6.21.4 bounds additional crafted-PDF xref and page-tree work and stops
+    # malformed-file loops. Keep subprocess resource limits as defense in depth.
+    "pypdf>=6.21.4",
     "requests>=2.32.0",
     # Security floors for the existing MCP authentication and HTTP stacks.
     "pyjwt>=2.15.0",
@@ -73,6 +72,8 @@ dependencies = [
     # Requests and HTTPX trust this bundle. certifi 2026.10.19 removes the
     # compromised emSign root. An explicit floor keeps upgrades out of 2026.5.20.
     "certifi>=2026.10.19",
+    # Google authentication reaches ASN.1 through pyasn1-modules.
+    "pyasn1>=0.6.5",
     # mcp 2.3.0 depends on this API with an open floor. 1.45.1 is the patched
     # release for CVE-2026-114603. Distillr does not configure an exporter.
     "opentelemetry-api>=1.45.1",
