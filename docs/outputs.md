@@ -226,7 +226,8 @@ agreement and disagreement. The other sections match the single-channel list.
 ## Research briefings and deep syntheses
 
 - **`output/briefing-{name}.md`** - Output of `distill research-brief` (Gemini Deep Research, web-augmented, multi-topic)
-- **`output/synthesis-{name}.md`** - Output of `distill synthesize` (configured synthesis model, single call, corpus-only, multi-topic)
+- **`output/synthesis-{name}.md`** - Output of `distill synthesize` (configured synthesis model, single call, corpus-only, multi-topic). Bracketed citations stay in the prose.
+- **`output/synthesis-{name}.docx`** - Reading copy written beside that Markdown file. Cover, tables, superscript citation numbers, and one numbered source list at the end. URLs from the prose are in that list. `distill document <file.md>` renders an existing synthesis the same way.
 
 ## Package Latest (agent handoff)
 

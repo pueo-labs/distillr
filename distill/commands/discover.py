@@ -117,7 +117,7 @@ def synthesize_cmd(
         ...,
         "--name",
         "-n",
-        help="Output filename stub. Writes to output/synthesis-{name}.md.",
+        help="Output stub. Writes output/synthesis-{name}.md and .docx.",
     ),
     context: str | None = typer.Option(None, "--context", help="Inline synthesis instructions."),
     context_file: Path | None = typer.Option(
@@ -128,15 +128,27 @@ def synthesize_cmd(
     max_tokens: int = typer.Option(
         32768,
         "--max-tokens",
-        help="Max output tokens (default 32768 ≈ 120KB of output).",
+        help="Max output tokens (default 32768, about 120KB of output).",
+    ),
+    document: bool = typer.Option(
+        True,
+        "--document/--no-document",
+        help="Also write a Word reading copy with numbered sources at the end.",
     ),
 ):
-    """Run a single-call deep synthesis across one or more topics.
+    """Synthesize one topic into Markdown and a Word reading copy.
 
-    Best for academic/technical corpus synthesis where the corpus is the ground
-    truth and web augmentation would add noise. The configured model's context
-    swallows the full corpus in one call, producing a long-form synthesis
-    without the consulting-report compression bias that Deep Research imposes.
+    This is the default reading step after ``distill discover`` has gathered
+    sources for one question. One model call reads that local corpus and writes
+    ``output/synthesis-<name>.md`` plus ``output/synthesis-<name>.docx``.
+    The Markdown file keeps bracketed citations so each claim can be checked.
+    The Word file turns those brackets into superscript numbers and lists each
+    source once at the end.
+
+    Examples:
+      distill discover "your question" --topic my-question --preview
+      distill synthesize -t my-question --context "What is established?" --name my-question
+      distill document output/synthesis-my-question.md
     """
     expanded: list[str] = []
     for entry in topics:
@@ -176,6 +188,7 @@ def synthesize_cmd(
             config=config,
             max_tokens=max_tokens,
             tracker=tracker,
+            write_document=document,
         )
         if output_path is None:
             raise typer.Exit(1)
@@ -525,7 +538,7 @@ def discover(  # noqa: C901 — legacy, will refactor
         hidden=True,
     ),
 ) -> str | None:
-    """Goal-aware cross-source discovery: papers + videos, reranked against a goal.
+    """Gather sources for one question. This is the default step before synthesize.
 
     With ``--from-gaps``, the goal is synthesized from the topic's coverage gaps
     (the inverse of goal-driven discovery): "you are thin on X, single-source on

@@ -1782,6 +1782,69 @@
       "path": "distill doctor"
     },
     {
+      "parameters": [
+        {
+          "default": null,
+          "kind": "argument",
+          "name": "source",
+          "nargs": 1,
+          "position": 0,
+          "required": true,
+          "type": {
+            "allow_dash": false,
+            "dir_okay": true,
+            "exists": false,
+            "file_okay": true,
+            "name": "path",
+            "readable": true,
+            "resolve_path": false,
+            "writable": false
+          }
+        },
+        {
+          "count": false,
+          "default": null,
+          "is_flag": false,
+          "kind": "option",
+          "multiple": false,
+          "name": "output",
+          "names": [
+            "--output",
+            "-o"
+          ],
+          "nargs": 1,
+          "required": false,
+          "type": {
+            "allow_dash": false,
+            "dir_okay": true,
+            "exists": false,
+            "file_okay": true,
+            "name": "path",
+            "readable": true,
+            "resolve_path": false,
+            "writable": false
+          }
+        },
+        {
+          "count": false,
+          "default": "",
+          "is_flag": false,
+          "kind": "option",
+          "multiple": false,
+          "name": "title",
+          "names": [
+            "--title"
+          ],
+          "nargs": 1,
+          "required": false,
+          "type": {
+            "name": "text"
+          }
+        }
+      ],
+      "path": "distill document"
+    },
+    {
       "parameters": [],
       "path": "distill editorial"
     },
@@ -6183,6 +6246,26 @@
             "readable": true,
             "resolve_path": false,
             "writable": false
+          }
+        },
+        {
+          "count": false,
+          "default": true,
+          "flag_value": null,
+          "is_flag": true,
+          "kind": "option",
+          "multiple": false,
+          "name": "document",
+          "names": [
+            "--document"
+          ],
+          "nargs": 1,
+          "required": false,
+          "secondary_names": [
+            "--no-document"
+          ],
+          "type": {
+            "name": "boolean"
           }
         },
         {

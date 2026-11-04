@@ -193,6 +193,10 @@ class TestTopLevelExperience:
         assert "Start:" in output
         assert "distill --cost-mode no-metered init" in output
         assert "distill provider list" in output
+        assert 'distill discover "question" --topic slug --preview' in output
+        assert "distill synthesize --topic slug" in output
+        assert "sources at the end" in output
+        assert "distill document PATH" in output
         for panel in ("Add sources:", "Keep current:", "Read and ask:", "Check:", "Operate:"):
             assert panel in output
         assert "gemini-" not in output
