@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Dependency security
+
+- Require pyasn1 0.6.5 or newer in package metadata and the lockfile so fresh
+  installations and upgrades use the patched ASN.1 decoder in Google authentication.
+- Require pypdf 6.21.4 or newer to address crafted-PDF parsing resource exhaustion
+  and loop advisories. Preserve the PDF worker's subprocess time and memory limits.
+
 ### Repository migration
 
 - Point package project URLs, repository installers, contributor and disclosure
