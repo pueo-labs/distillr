@@ -9,6 +9,13 @@ tools: [positioning.md](positioning.md).
 ## Common first commands
 
 ```bash
+# Default for one question: preview, ingest the printed shortlist, then synthesize.
+# The synthesis writes Markdown plus a Word reading copy with sources at the end.
+distill discover "your question" --topic my-question --preview
+distill discover --from-preview <id> --topic my-question --yes
+distill synthesize --topic my-question --context "Answer the question." --name my-question
+distill document output/synthesis-my-question.md
+
 # Goal-aware cross-source discovery
 distill discover "help an AI become a great music composer" --topic music --preview
 distill --cost-mode no-metered topic preview "agent memory systems" --topic memory --videos 10 --papers 10
@@ -932,6 +939,12 @@ distill synthesize -t ai --context "Summarize for a VP of Engineering deciding o
 **The context file is the prompt.** Copy [`docs/briefing-contexts/TEMPLATE.md`](briefing-contexts/TEMPLATE.md) as a starting point. Personal/client-specific context files live in [`private/`](../private/) (git-ignored by default).
 
 Output lands in `output/briefing-{name}.md` or `output/synthesis-{name}.md`.
+`distill synthesize` also writes `output/synthesis-{name}.docx` unless you pass
+`--no-document`. The Word file is a reading copy: bracketed sources and prose
+URLs become superscript numbers, and each source is listed once at the end.
+The Markdown
+file stays the inspectable copy. Render an existing synthesis with
+`distill document output/synthesis-{name}.md`.
 Here and throughout the docs, `output/` is the directory beside the configured
 library root, even when the command runs from another working directory.
 Distill confines path-like `--name` values to one safe filename and publishes

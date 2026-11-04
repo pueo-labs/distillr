@@ -463,6 +463,7 @@ def test_synthesize_combines_inline_and_file_context(
 
     assert result.exit_code == 0, result.output
     assert calls["context"] == "Inline instructions.\n\nFile instructions."
+    assert calls["write_document"] is True
     assert "Tokens:" in result.output
     rows = [
         json.loads(line)

@@ -17,6 +17,42 @@
 *PyPI package [`distillr`](https://pypi.org/project/distillr/); CLI is `distill`
 (plus `distill-mcp`).*
 
+## One question is the default
+
+For a single research question, preview sources, ingest the shortlist, then
+synthesize a reading document. `distill --help` prints the same path.
+
+```bash
+distill discover "your question" --topic my-question --preview
+distill discover --from-preview <id> --topic my-question --yes
+distill synthesize --topic my-question \
+  --context "Answer the question. Name what the sources do not settle." \
+  --name my-question
+```
+
+Setup is in the next section. On a local model, put `--cost-mode no-metered`
+before each command. A cloud route needs a cost mode that allows it.
+
+The preview command writes a shortlist and prints its id. It does not ingest.
+`--from-preview` ingests that saved set. Synthesize reads the local corpus in
+one model call and writes two files beside the library:
+
+- `output/synthesis-my-question.md` keeps bracketed citations in the prose so
+  each claim can be checked.
+- `output/synthesis-my-question.docx` is the reading copy. Citations and
+  prose URLs become superscript numbers, tables stay tables, and each source
+  is listed once at the end.
+
+Render a synthesis you already have, without another model call:
+
+```bash
+distill document output/synthesis-my-question.md
+distill document output/synthesis-my-question.md --title "My question"
+```
+
+`distill document` does not change the Markdown file. `distill discover --help`
+and `distill synthesize --help` show the flags.
+
 ## Install and first run
 
 0. Install [Ollama](https://ollama.com/download), set `OLLAMA_NO_CLOUD=1` in

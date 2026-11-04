@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `distill synthesize` writes a Word reading copy beside the Markdown
+  synthesis. Bracketed sources and prose URLs become superscript numbers, and
+  each source is listed once at the end. The reading copy has no contents page.
+  `distill document <file.md>` renders an existing synthesis the same way,
+  without a model call. `distill --help` recommends preview, ingest, and
+  synthesize as the default path for one question.
 - Third-trial receipts retain 29 attempts, $0.112788 reported API cost,
   per-workload inconclusive/rejected reasoning comparisons and independent
   video-review failures. Model testing is stopped at the operator's request.

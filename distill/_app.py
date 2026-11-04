@@ -70,6 +70,7 @@ class DistillGroup(TyperGroup):
                 "show",
                 "synthesize",
                 "synthesis",
+                "document",
                 "report",
                 "export",
                 "serve",
@@ -95,7 +96,17 @@ class DistillGroup(TyperGroup):
                 formatter.write_text(", ".join(commands))
         formatter.write_paragraph()
         formatter.write_text(
-            "Start: distill --cost-mode no-metered init\nModels: distill provider list\nDetails: distill COMMAND --help or docs/usage.md"
+            'Default for one question: distill discover "question" --topic slug --preview, '
+            "ingest the printed shortlist, then distill synthesize --topic slug "
+            '--context "what to answer" --name slug. '
+            "Synthesize writes Markdown and a Word reading copy with sources at the end."
+        )
+        formatter.write_paragraph()
+        formatter.write_text(
+            "Start: distill --cost-mode no-metered init\n"
+            "Models: distill provider list\n"
+            "Render an existing synthesis: distill document PATH\n"
+            "Details: distill discover --help or docs/usage.md"
         )
 
     def resolve_command(

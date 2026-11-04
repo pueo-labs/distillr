@@ -56,8 +56,12 @@ def compose_synthesis_prompt(context: str, corpus_sections: list[tuple[str, str]
         "contextualize; do not introduce new findings that are not in the corpus.\n\n"
         "Prioritize depth, specificity, and usefulness over brevity. If a technique appears in a "
         "paper, describe its mechanism, the numbers or math that matter, the trade-offs, and the "
-        "specific implementation considerations for the reader's context. Cite papers inline by "
-        "title + arXiv ID. Use the claim-strength labels the context file specifies.\n\n"
+        "specific implementation considerations for the reader's context. Cite each source inline "
+        "with a stable bracketed locator, such as `[Title - arXiv 2401.01234]`, "
+        "`[Title - YT videoId]`, `[Title - https://example.com/page]`, or `[YT videoId]`. "
+        "Repeat that same bracket when you cite the source again. Use `[C]`, `[S]`, `[I]`, and "
+        "`[G]` only for claim strength, and use any other labels the context file specifies. "
+        "Do not invent numbered footnotes.\n\n"
         "=== CONTEXT AND INSTRUCTIONS ===\n\n"
         + context.strip()
         + "\n\n"
@@ -79,6 +83,7 @@ def run_synthesis(
     config: DistillConfig,
     max_tokens: int = 32768,
     tracker: CostTracker | None = None,
+    write_document: bool = True,
 ) -> Path | None:
     """Run a single-call LLM synthesis across the given topics."""
     if not _synthesis_model_available():
@@ -127,6 +132,13 @@ def run_synthesis(
 
     output_path = workspace_output_path(config.library_dir, f"synthesis-{name}.md")
     atomic_write_text(output_path, result)
-    console.print(f"\n[green]Synthesis saved to:[/green] {output_path}")
-    console.print(f"[dim]Size: {len(result):,} chars[/dim]")
+    console.print(f"\n[green]Synthesis saved:[/green] {output_path}")
+    console.print(f"[dim]{len(result):,} characters[/dim]")
+    if write_document:
+        from distill.library.synthesis_document import write_synthesis_document
+
+        docx_path = output_path.with_suffix(".docx")
+        write_synthesis_document(result, docx_path)
+        console.print(f"[green]Reading copy:[/green] {docx_path}")
+        console.print("[dim]Superscript numbers point at the source list at the end.[/dim]")
     return output_path

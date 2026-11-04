@@ -1,5 +1,5 @@
 # pyright: strict
-"""The `distill report` + `distill export` commands.
+"""The `distill report`, `distill export`, and `distill document` commands.
 
 report runs an explicit corpus, accordion, or Deep Research profile;
 export packages a topic into a Word document or a portable corpus zip (the
@@ -46,6 +46,7 @@ from distill.pipeline.costs import BudgetExceededError, report_profile_estimate
 from distill.pipeline.report.facade import ReportProfileName, run_report
 from distill.pipeline.report.profiles import profile_requires_gemini
 from distill.pipeline.summary import RunSummary, display_summary
+from distill.target_safety import require_local_filesystem_target
 
 if TYPE_CHECKING:
     from distill.library.export import markdown_to_docx
@@ -488,7 +489,69 @@ def export(
     console.print(f"\n  [dim]distill open {topic}  to open the output folder[/dim]")
 
 
+def document(
+    source: Path = typer.Argument(..., help="Synthesis Markdown file to render."),
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Word file to write. Defaults to the Markdown path with a .docx suffix.",
+    ),
+    title: str = typer.Option(
+        "",
+        "--title",
+        help="Cover title. Defaults to the first heading or the file name.",
+    ),
+) -> None:
+    """Render a synthesis as a Word reading copy with sources at the end.
+
+    The Markdown file stays the inspectable copy, citations included.
+    This command writes a separate .docx: cover, tables, superscript citation
+    numbers, and one numbered source list. URLs stay in that list. It does not
+    call a model.
+
+    ``distill synthesize`` writes this document beside the Markdown file.
+    Use this command to render a synthesis you already have.
+
+    Examples:
+      distill document output/synthesis-my-question.md
+      distill document output/synthesis-my-question.md --title "My question"
+    """
+
+    try:
+        require_local_filesystem_target(str(source))
+        if output is not None:
+            require_local_filesystem_target(str(output))
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from None
+    if source.suffix.lower() == ".docx":
+        console.print("[red]Pass the Markdown synthesis, not the Word file.[/red]")
+        raise typer.Exit(1)
+    if not source.is_file():
+        console.print(f"[red]Synthesis file not found:[/red] {source}")
+        raise typer.Exit(1)
+    docx_path = output if output is not None else source.with_suffix(".docx")
+    if docx_path.suffix.lower() != ".docx":
+        console.print("[red]The Word file must use a .docx name.[/red]")
+        raise typer.Exit(1)
+    try:
+        markdown = source.read_text(encoding="utf-8")
+    except UnicodeError:
+        console.print(f"[red]Synthesis file is not UTF-8 text:[/red] {source}")
+        raise typer.Exit(1) from None
+    if not markdown.strip():
+        console.print(f"[red]The synthesis file is empty:[/red] {source}")
+        raise typer.Exit(1)
+    from distill.library.synthesis_document import write_synthesis_document
+
+    write_synthesis_document(markdown, docx_path, title=title or None)
+    console.print(f"[green]Reading copy:[/green] {docx_path}")
+    console.print("[dim]The Markdown file was not changed.[/dim]")
+
+
 def register(app: typer.Typer) -> None:
-    """Attach the report + export commands to the app (called from distill.cli)."""
+    """Attach the report, export, and document commands to the app."""
     app.command(rich_help_panel="Reports")(report)
     app.command(rich_help_panel="Reports")(export)
+    app.command(rich_help_panel="Reports")(document)

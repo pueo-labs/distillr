@@ -36,6 +36,8 @@ def test_compose_synthesis_prompt_includes_context_and_sources():
     assert "Focus on mechanisms" in prompt
     assert "=== SOURCE: paper-1 ===" in prompt
     assert "=== END OF CORPUS ===" in prompt
+    assert "[Title - YT videoId]" in prompt
+    assert "Do not invent numbered footnotes." in prompt
 
 
 def test_run_synthesis_returns_none_when_no_model_available(tmp_path, monkeypatch):
@@ -78,8 +80,26 @@ def test_run_synthesis_success(tmp_path):
     assert result is not None
     assert result == tmp_path / "output" / "synthesis-demo.md"
     assert result.read_text(encoding="utf-8") == "final synthesis"
+    docx_path = tmp_path / "output" / "synthesis-demo.docx"
+    assert docx_path.is_file()
+    assert docx_path.stat().st_size > 0
     assert len(tracker.entries) == 1
     assert tracker.entries[0].call_type == "synthesis"
+
+
+def test_run_synthesis_can_skip_the_reading_copy(tmp_path):
+    config = DistillConfig(xai_api_key="test-key", distill_output_dir=tmp_path / "lib")
+    with (
+        patch(
+            "distill.pipeline.report.synthesize.gather_topic_files", return_value=[("doc", "body")]
+        ),
+        patch("distill.pipeline.report.synthesize.llm_call", _fake_llm_call("final synthesis")),
+    ):
+        result = run_synthesis(["ai"], "ctx", "demo", config, write_document=False)
+
+    assert result is not None
+    assert result.read_text(encoding="utf-8") == "final synthesis"
+    assert not (tmp_path / "output" / "synthesis-demo.docx").exists()
 
 
 def test_run_synthesis_refuses_unresolved_numbered_citation(tmp_path, monkeypatch):
