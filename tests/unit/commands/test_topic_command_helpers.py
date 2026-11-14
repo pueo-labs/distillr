@@ -391,7 +391,7 @@ def test_topic_create_brief_uses_topic_brief_budget(
 
     def fake_brief(topic: str, config: DistillConfig, tracker: Any) -> None:
         budgets.append(tracker.budget)
-        tracker.record(TokenUsage(prompt_tokens=1000, completion_tokens=0, model="grok-4.3"))
+        tracker.record(TokenUsage(prompt_tokens=1000, completion_tokens=0, model="grok-4.7"))
 
     monkeypatch.setattr(
         _topic,

@@ -16,7 +16,7 @@ def test_discover_generate_queries_parses_fenced_json_and_records_usage(config, 
             text='```json\n{"paper_queries":["alpha","alpha","beta"],"video_queries":["walkthrough","walkthrough"]}\n```',
             input_tokens=11,
             output_tokens=7,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     tracker = CostTracker()
@@ -43,7 +43,7 @@ def test_discover_generate_queries_returns_empty_for_blank_response(config, monk
             text="   ",
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -67,7 +67,7 @@ def test_discover_generate_queries_short_circuits_when_both_counts_zero(config, 
 
     def fake_llm_call(*args, **kwargs):
         called.append(True)
-        return LLM_Response(text="", input_tokens=0, output_tokens=0, model="grok-4.3")
+        return LLM_Response(text="", input_tokens=0, output_tokens=0, model="grok-4.7")
 
     monkeypatch.setattr(discover, "llm_call", fake_llm_call)
 
@@ -95,7 +95,7 @@ def test_discover_generate_queries_drops_disabled_side_after_llm(config, monkeyp
             text='{"paper_queries":["should-be-dropped"],"video_queries":["walkthrough"]}',
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -120,7 +120,7 @@ def test_discover_generate_queries_enforces_requested_cardinality(config, monkey
             text=('{"paper_queries":["p1","p2","p3"],"video_queries":["v1","v2","v3"]}'),
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -259,7 +259,7 @@ def test_discover_rerank_maps_ranked_items_and_sorts_by_score(config, monkeypatc
             text='```json\n{"ranked_items":[{"kind":"video","identifier":"v1","final_score":0.75,"goal_fit":0.7,"depth_score":0.8,"complementarity_score":0.6,"rationale":"practical walkthrough"},{"kind":"paper","identifier":"p1","final_score":0.9,"goal_fit":0.95,"depth_score":0.85,"complementarity_score":0.7,"rationale":"best conceptual fit"},{"kind":"site","identifier":"https://learn.microsoft.com/en-us/microsoft-365/agents/overview","final_score":0.55,"goal_fit":0.8,"depth_score":0.5,"complementarity_score":0.7,"rationale":"official reference material"}]}\n```',
             input_tokens=11,
             output_tokens=7,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -287,7 +287,7 @@ def test_discover_generate_queries_pins_temperature_for_reproducible_plans(confi
             text='{"paper_queries":["a"],"video_queries":["b"]}',
             input_tokens=1,
             output_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
     monkeypatch.setattr(discover, "llm_call", fake_llm_call)
@@ -417,7 +417,7 @@ def test_discover_rerank_returns_empty_for_non_list_payload(config, monkeypatch)
             text='{"ranked_items": {"bad": true}}',
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -439,7 +439,7 @@ def test_discover_rerank_defaults_malformed_numeric_scores(config, monkeypatch):
             ),
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 

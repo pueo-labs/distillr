@@ -56,7 +56,7 @@ def _provider(run_id: str, elapsed: float = 0.25) -> dict[str, object]:
     return {
         "run_id": run_id,
         "timestamp": "2026-07-12T12:00:00+00:00",
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "analysis",
         "outcome": "success",
         "elapsed_seconds": elapsed,

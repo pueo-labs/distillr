@@ -645,14 +645,14 @@ def test_adapter_workload_runner_uses_default_capture_for_grok(tmp_path):
         _stdin: str,
     ) -> AdapterProcessResult:
         (cwd / "adapter-result.json").write_text(
-            json.dumps(_manifest(adapter="grok", model="grok-4.3")),
+            json.dumps(_manifest(adapter="grok", model="grok-4.7")),
             encoding="utf-8",
         )
         (cwd / "result.txt").write_text(json.dumps({"summary": "ok"}), encoding="utf-8")
         return AdapterProcessResult(
             exit_code=0,
             stdout=json.dumps(
-                {"model": "grok-4.3", "usage": {"input_tokens": 120, "output_tokens": 45}}
+                {"model": "grok-4.7", "usage": {"input_tokens": 120, "output_tokens": 45}}
             ),
         )
 
@@ -674,7 +674,7 @@ def test_adapter_workload_runner_uses_default_capture_for_grok(tmp_path):
     assert result.adapter_result.manifest.adapter == "grok"
     assert result.adapter_result.manifest.usage.input_tokens == 120
     assert result.adapter_result.manifest.usage.output_tokens == 45
-    assert result.adapter_result.manifest.model == "grok-4.3"
+    assert result.adapter_result.manifest.model == "grok-4.7"
     # default writer should have written native-usage.json
     usage = load_adapter_native_usage(Path("native-usage.json"), scratch_root=tmp_path)
     assert usage.adapter == "grok"

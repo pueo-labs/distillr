@@ -209,7 +209,7 @@ def test_command_phase_provider_and_cost_rows_share_run_id(tmp_path: Path) -> No
         text="analysis",
         input_tokens=12,
         output_tokens=7,
-        model="grok-4.3",
+        model="grok-4.7",
     )
     config = RouterConfig(xai_api_key="test", ops_dir=str(ops_dir))
 

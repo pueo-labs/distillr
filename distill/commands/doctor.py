@@ -777,7 +777,7 @@ def doctor(  # noqa: C901 - legacy, will refactor
     if config.xai_api_key:
         providers.append("cloud (xai-grok-stt $0.10/hr)")
     if config.openai_api_key:
-        providers.append("cloud (openai whisper-1 $0.36/hr)")
+        providers.append("cloud (openai gpt-transcribe $0.27/hr)")
     if providers:
         routing = " -> ".join(providers)
     else:

@@ -47,7 +47,7 @@ def _patch_llm(monkeypatch, text="## Summary\nThe guest reports 72.6 MRR."):
         pod_mod,
         "llm_call",
         lambda rc, **kwargs: LLM_Response(
-            text=text, input_tokens=10, output_tokens=5, model="grok-4.3"
+            text=text, input_tokens=10, output_tokens=5, model="grok-4.7"
         ),
     )
 

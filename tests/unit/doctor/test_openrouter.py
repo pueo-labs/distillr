@@ -147,7 +147,7 @@ def test_selected_model_probe_records_provider_reported_cost(monkeypatch, tmp_pa
     attempt = LLMUsageAttempt(
         input_tokens=12,
         output_tokens=4,
-        model="x-ai/grok-4.6",
+        model="x-ai/grok-4.7",
         provider_name="openrouter",
         provider_type="cloud",
         usage_source="reported",
@@ -167,7 +167,7 @@ def test_selected_model_probe_records_provider_reported_cost(monkeypatch, tmp_pa
                 text="ok",
                 input_tokens=12,
                 output_tokens=4,
-                model="x-ai/grok-4.6",
+                model="x-ai/grok-4.7",
                 billed_cost_usd=0.0002,
                 upstream_provider="xai",
                 usage_attempts=(attempt,),
@@ -179,10 +179,10 @@ def test_selected_model_probe_records_provider_reported_cost(monkeypatch, tmp_pa
     result = validate_openrouter_key(
         _config(tmp_path),
         tracker,
-        model="x-ai/grok-4.6",
+        model="x-ai/grok-4.7",
     )
 
-    assert result == ("ok", "x-ai/grok-4.6")
+    assert result == ("ok", "x-ai/grok-4.7")
     assert tracker.total_cost == 0.0002
     assert tracker.entries[0].upstream_provider == "xai"
 
@@ -258,7 +258,7 @@ def test_model_probe_records_attached_failure_attempt(monkeypatch, tmp_path) -> 
             LLMUsageAttempt(
                 input_tokens=100,
                 output_tokens=1,
-                model="x-ai/grok-4.6",
+                model="x-ai/grok-4.7",
                 provider_name="openrouter",
                 provider_type="cloud",
                 usage_source="conservative",
@@ -282,7 +282,7 @@ def test_model_probe_records_attached_failure_attempt(monkeypatch, tmp_path) -> 
     status, detail = validate_openrouter_key(
         _config(tmp_path),
         tracker,
-        model="x-ai/grok-4.6",
+        model="x-ai/grok-4.7",
     )
 
     assert status == "unknown"
@@ -310,7 +310,7 @@ def test_model_probe_preserves_interrupt_and_records_conservative_usage(
         validate_openrouter_key(
             _config(tmp_path),
             tracker,
-            model="x-ai/grok-4.6",
+            model="x-ai/grok-4.7",
         )
 
     assert len(tracker.entries) == 1

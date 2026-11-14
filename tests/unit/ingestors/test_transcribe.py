@@ -309,7 +309,7 @@ def test_transcribe_media_no_metered_blocks_cloud_before_fallback(
         return_value=TranscriptionResult(text="grok", provider="xai-grok-stt", model="grok-stt")
     )
     openai = MagicMock(
-        return_value=TranscriptionResult(text="openai", provider="openai", model="whisper-1")
+        return_value=TranscriptionResult(text="openai", provider="openai", model="gpt-transcribe")
     )
     probe = MagicMock(return_value=60.0)
 
@@ -639,7 +639,7 @@ def test_probe_media_duration_reads_tail_metadata_beyond_default_cache(tmp_path:
             "-f",
             "lavfi",
             "-i",
-            "sine=frequency=440:duration=20:sample_rate=44100",
+            "sine=frequency=440:duration=21:sample_rate=44100",
             "-c:a",
             "aac",
             "-b:a",
@@ -685,7 +685,7 @@ def test_probe_media_duration_ignores_compressed_container_timestamps(tmp_path: 
             "-f",
             "lavfi",
             "-i",
-            "sine=frequency=440:duration=6:sample_rate=16000",
+            "sine=frequency=440:duration=7:sample_rate=16000",
             "-af",
             "asetpts=PTS/60",
             "-c:a",
@@ -758,7 +758,7 @@ def test_transcribe_media_auto_falls_back_to_cloud(tmp_path: Path) -> None:
     def _cloud(
         media_path: Path, config: DistillConfig, *, vocabulary_hint: str = ""
     ) -> TranscriptionResult:
-        return TranscriptionResult(text="cloud OK", provider="openai", model="whisper-1")
+        return TranscriptionResult(text="cloud OK", provider="openai", model="gpt-transcribe")
 
     with (
         patch(
@@ -798,7 +798,9 @@ def test_transcribe_media_cloud_only_skips_local(tmp_path: Path) -> None:
         return_value=TranscriptionResult(text="!", provider="faster-whisper", model="x")
     )
     cloud_mock = MagicMock(
-        return_value=TranscriptionResult(text="cloud only", provider="openai", model="whisper-1")
+        return_value=TranscriptionResult(
+            text="cloud only", provider="openai", model="gpt-transcribe"
+        )
     )
 
     with (
@@ -820,7 +822,7 @@ def test_transcribe_media_cloud_uses_grok_before_openai(tmp_path: Path) -> None:
         return_value=TranscriptionResult(text="grok first", provider="xai", model="grok-stt")
     )
     openai_mock = MagicMock(
-        return_value=TranscriptionResult(text="openai", provider="openai", model="whisper-1")
+        return_value=TranscriptionResult(text="openai", provider="openai", model="gpt-transcribe")
     )
 
     with (
@@ -979,7 +981,7 @@ def test_failed_cloud_attempt_and_successful_fallback_are_both_recorded(
     media = tmp_path / "m.mp4"
     media.write_bytes(b"x")
     tracker = MagicMock()
-    openai_result = TranscriptionResult(text="fallback", provider="openai", model="whisper-1")
+    openai_result = TranscriptionResult(text="fallback", provider="openai", model="gpt-transcribe")
 
     with (
         patch(
@@ -995,11 +997,11 @@ def test_failed_cloud_attempt_and_successful_fallback_are_both_recorded(
     assert result is openai_result
     assert tracker.authorize_transcription.call_args_list == [
         call("xai-grok-stt", 60.0, model="grok-stt"),
-        call("openai", 60.0, model="whisper-1"),
+        call("openai", 60.0, model="gpt-transcribe"),
     ]
     assert tracker.record_transcription.call_args_list == [
         call("xai-grok-stt", 60.0, model="grok-stt", outcome="failed"),
-        call("openai", 60.0, model="whisper-1", outcome="completed"),
+        call("openai", 60.0, model="gpt-transcribe", outcome="completed"),
     ]
 
 
@@ -1234,7 +1236,7 @@ def test_transcribe_openai_success_builds_result(monkeypatch: pytest.MonkeyPatch
     result = _transcribe_openai(Path("a.mp4"), config, vocabulary_hint="Anthropic")
 
     assert result.provider == "openai"
-    assert result.model == "whisper-1"
+    assert result.model == "gpt-transcribe"
     assert result.text == "openai transcript"
     assert any("vocab_hint" in note for note in result.notes)
 

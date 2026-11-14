@@ -631,12 +631,12 @@ class TestProviderBoundaries:
 
         def validate(provider, received_config):
             observed.update(provider=provider, config=received_config)
-            return "ok", "grok-4.3"
+            return "ok", "grok-4.7"
 
         monkeypatch.setattr("distill.commands._helpers.get_config", lambda: config)
         monkeypatch.setattr("distill.doctor.checks.doctor_validate_key", validate)
 
-        assert init_mod._validate_xai() == ("ok", "grok-4.3")
+        assert init_mod._validate_xai() == ("ok", "grok-4.7")
         assert observed == {"provider": "xai", "config": config}
 
 
@@ -787,7 +787,7 @@ def test_json_verdict(in_tmp, monkeypatch):
     assert env["data"]["xai_key"] == "ok"
     assert env["data"]["next"].startswith("distill --cost-mode paid-ok papers ")
     assert env["data"]["analysis_provider"] == "xai"
-    assert env["data"]["analysis_model"] == "grok-4.6"
+    assert env["data"]["analysis_model"] == "grok-4.7"
 
 
 def test_existing_env_not_clobbered_by_command(in_tmp, monkeypatch):

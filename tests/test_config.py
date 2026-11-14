@@ -120,8 +120,8 @@ class TestDistillConfig:
         assert config.distill_cost_warning_spike_multiplier == 2.5
         assert config.distill_cost_warning_run_spike_min_usd == 1.0
         assert config.cost_workflow_budgets_usd == {}
-        assert config.xai_model_for("analysis") == "grok-4.6"
-        assert config.xai_model_for("site") == "grok-4.6"
+        assert config.xai_model_for("analysis") == "grok-4.7"
+        assert config.xai_model_for("site") == "grok-4.7"
 
     def test_custom_config(self, tmp_path):
         config = DistillConfig(
@@ -198,13 +198,13 @@ class TestDistillConfig:
     def test_xai_model_overrides(self, tmp_path):
         config = DistillConfig(
             distill_output_dir=tmp_path / "lib",
-            xai_analysis_model="grok-4.20",
-            xai_site_model="grok-4.20-latest",
-            accordion_section_model="grok-4.20",
+            xai_analysis_model="grok-4.7",
+            xai_site_model="pinned-site-model",
+            accordion_section_model="pinned-accordion",
         )
-        assert config.xai_model_for("analysis") == "grok-4.20"
-        assert config.xai_model_for("site") == "grok-4.20-latest"
-        assert config.xai_model_for("accordion") == "grok-4.20"
+        assert config.xai_model_for("analysis") == "grok-4.7"
+        assert config.xai_model_for("site") == "pinned-site-model"
+        assert config.xai_model_for("accordion") == "pinned-accordion"
 
     def test_library_dir_property(self, tmp_path):
         config = DistillConfig(distill_output_dir=tmp_path / "lib")

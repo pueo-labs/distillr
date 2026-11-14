@@ -75,7 +75,7 @@ def _install_client(monkeypatch: pytest.MonkeyPatch) -> None:
 def _success_payload(
     *,
     text: str = "hello",
-    model: str = "claude-sonnet-5",
+    model: str = "claude-sonnet-5-5",
     input_tokens: int = 10,
     output_tokens: int = 5,
 ) -> dict[str, object]:
@@ -93,7 +93,7 @@ def test_successful_call_builds_messages_request(monkeypatch: pytest.MonkeyPatch
 
     result = asyncio.run(
         provider.call(
-            "claude-sonnet-5",
+            "claude-sonnet-5-5",
             "hello",
             max_tokens=128_000,
             timeout=42,
@@ -105,7 +105,7 @@ def test_successful_call_builds_messages_request(monkeypatch: pytest.MonkeyPatch
     assert result.text == "response text"
     assert result.input_tokens == 10
     assert result.output_tokens == 5
-    assert result.model == "claude-sonnet-5"
+    assert result.model == "claude-sonnet-5-5"
     assert _FakeAsyncClient.timeouts == [42]
     request = _FakeAsyncClient.posts[0]
     assert request["url"] == ANTHROPIC_MESSAGES_URL
@@ -115,18 +115,20 @@ def test_successful_call_builds_messages_request(monkeypatch: pytest.MonkeyPatch
         "content-type": "application/json",
     }
     assert request["json"] == {
-        "model": "claude-sonnet-5",
+        "model": "claude-sonnet-5-5",
         "max_tokens": 128_000,
         "messages": [{"role": "user", "content": "hello"}],
     }
 
 
-def test_non_sonnet5_models_keep_temperature(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_models_outside_the_current_family_keep_temperature(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     _install_client(monkeypatch)
-    _FakeAsyncClient.responses.append(_FakeResponse(_success_payload(model="claude-sonnet-4")))
+    _FakeAsyncClient.responses.append(_FakeResponse(_success_payload(model="claude-custom")))
     provider = AnthropicProvider("test-key")
 
-    asyncio.run(provider.call("claude-sonnet-4", "hello", temperature=0.2))
+    asyncio.run(provider.call("claude-custom", "hello", temperature=0.2))
 
     payload = _FakeAsyncClient.posts[0]["json"]
     assert isinstance(payload, dict)
@@ -138,7 +140,7 @@ def test_reasoning_effort_uses_output_config_only(monkeypatch: pytest.MonkeyPatc
     _FakeAsyncClient.responses.append(_FakeResponse(_success_payload()))
     provider = AnthropicProvider("test-key")
 
-    asyncio.run(provider.call("claude-sonnet-5", "hello", reasoning_effort="xhigh"))
+    asyncio.run(provider.call("claude-sonnet-5-5", "hello", reasoning_effort="xhigh"))
 
     payload = _FakeAsyncClient.posts[0]["json"]
     assert isinstance(payload, dict)
@@ -162,12 +164,12 @@ def test_missing_usage_and_model_fall_back_conservatively(
     )
     provider = AnthropicProvider("test-key")
 
-    result = asyncio.run(provider.call("claude-sonnet-5", "hello", max_tokens=64))
+    result = asyncio.run(provider.call("claude-sonnet-5-5", "hello", max_tokens=64))
 
     assert result.text == "partial"
     assert result.input_tokens == 1029
     assert result.output_tokens == 64
-    assert result.model == "claude-sonnet-5"
+    assert result.model == "claude-sonnet-5-5"
     assert result.usage_source == "conservative"
 
 
@@ -181,7 +183,7 @@ def test_retry_on_transient_error(monkeypatch: pytest.MonkeyPatch) -> None:
     with monkeypatch.context() as ctx:
         sleep_calls: list[int] = []
         ctx.setattr("distill.llm.providers.anthropic.time.sleep", sleep_calls.append)
-        result = asyncio.run(provider.call("claude-sonnet-5", "hello", retries=2))
+        result = asyncio.run(provider.call("claude-sonnet-5-5", "hello", retries=2))
 
     assert result.text == "ok"
     assert [row.outcome for row in result.usage_attempts] == ["error", "success"]
@@ -204,7 +206,7 @@ def test_exhausted_retries_attach_every_conservative_attempt(
 
     monkeypatch.setattr("distill.llm.providers.anthropic.time.sleep", no_sleep)
     with pytest.raises(RuntimeError, match="transient") as raised:
-        asyncio.run(provider.call("claude-sonnet-5", "hello", retries=2, max_tokens=64))
+        asyncio.run(provider.call("claude-sonnet-5-5", "hello", retries=2, max_tokens=64))
 
     attempts = usage_attempts_from_exception(raised.value)
     assert len(attempts) == 3
@@ -221,7 +223,7 @@ def test_permanent_http_error_does_not_retry(monkeypatch: pytest.MonkeyPatch) ->
     provider = AnthropicProvider("test-key")
 
     with pytest.raises(httpx.HTTPStatusError, match="unauthorized"):
-        asyncio.run(provider.call("claude-sonnet-5", "hello", retries=2))
+        asyncio.run(provider.call("claude-sonnet-5-5", "hello", retries=2))
 
     assert len(_FakeAsyncClient.posts) == 1
 
@@ -229,38 +231,35 @@ def test_permanent_http_error_does_not_retry(monkeypatch: pytest.MonkeyPatch) ->
 @pytest.mark.parametrize(
     "model",
     [
-        "claude-sonnet-5",
-        "claude-opus-5",
         "claude-sonnet-5-5",
         "claude-opus-5-5",
-        "claude-opus-4-7",
-        "claude-opus-4-8",
-        "claude-fable-5",
-        "claude-mythos-5",
+        "claude-fable-5-2",
+        "claude-mythos-5-2",
+        "claude-haiku-5-5",
         # Case variants must match too: the router accepts a model id in any
         # case, so a literal startswith would forward a rejected parameter.
-        "Claude-Opus-4-8",
-        "CLAUDE-SONNET-5",
-        "  claude-opus-4-8  ",
+        "Claude-Opus-5-5",
+        "CLAUDE-SONNET-5-5",
+        "  claude-opus-5-5  ",
     ],
 )
 def test_sampling_omitted_for_models_that_reject_it(model: str) -> None:
     assert _supports_custom_sampling(model) is False
 
 
-@pytest.mark.parametrize("model", ["claude-opus-4-6", "claude-sonnet-4", "claude-haiku-4"])
-def test_sampling_kept_for_models_that_still_accept_it(model: str) -> None:
+@pytest.mark.parametrize("model", ["claude-custom", "some-other-model"])
+def test_sampling_kept_for_models_outside_the_current_family(model: str) -> None:
     assert _supports_custom_sampling(model) is True
 
 
 def test_temperature_not_sent_to_model_that_rejects_it(monkeypatch: pytest.MonkeyPatch) -> None:
-    """A mixed-case Opus 4.8 id must not forward ``temperature`` (HTTP 400)."""
+    """A mixed-case Opus 5.5 id must not forward ``temperature`` (HTTP 400)."""
     _install_client(monkeypatch)
     _FakeAsyncClient.responses.append(
         _FakeResponse(payload={"content": [{"type": "text", "text": "ok"}]})
     )
     provider = AnthropicProvider("test-key")
 
-    asyncio.run(provider.call("Claude-Opus-4-8", "hello", temperature=0.7))
+    asyncio.run(provider.call("Claude-Opus-5-5", "hello", temperature=0.7))
 
     assert "temperature" not in _FakeAsyncClient.posts[0]["json"]

@@ -50,7 +50,7 @@ def _mock_provider(
     text: str = "response",
     input_tokens: int = 100,
     output_tokens: int = 50,
-    model: str = "grok-4.3",
+    model: str = "grok-4.7",
 ) -> AsyncMock:
     """Create a mock provider whose call() returns a predictable LLM_Response."""
     mock = AsyncMock()
@@ -95,7 +95,7 @@ def isolate_provider_cache() -> Iterator[None]:
     workload_tag=st.sampled_from(_KNOWN_TAGS),
     input_tokens=st.integers(min_value=0, max_value=1_000_000),
     output_tokens=st.integers(min_value=0, max_value=1_000_000),
-    model=st.sampled_from(["grok-4.3", "gemini-3.1-pro", "claude-sonnet-4"]),
+    model=st.sampled_from(["grok-4.7", "gemini-4-carbon", "claude-sonnet-5-5"]),
 )
 def test_telemetry_emission_completeness(
     workload_tag: str,
@@ -165,9 +165,9 @@ def test_legacy_report_model_env_maps_to_router_when_new_override_is_absent(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("DISTILL_PROVIDER", "xai")
     monkeypatch.delenv("DISTILL_ACCORDION_MODEL", raising=False)
-    monkeypatch.setenv("ACCORDION_SECTION_MODEL", "grok-4.3")
+    monkeypatch.setenv("ACCORDION_SECTION_MODEL", "pinned-legacy-model")
 
-    assert RouterConfig().resolve("accordion") == ("xai", "grok-4.3")
+    assert RouterConfig().resolve("accordion") == ("xai", "pinned-legacy-model")
 
 
 def test_new_report_model_env_wins_over_legacy_alias(
@@ -176,10 +176,10 @@ def test_new_report_model_env_wins_over_legacy_alias(
 ) -> None:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("DISTILL_PROVIDER", "xai")
-    monkeypatch.setenv("DISTILL_ACCORDION_MODEL", "grok-4.5")
-    monkeypatch.setenv("ACCORDION_SECTION_MODEL", "grok-4.3")
+    monkeypatch.setenv("DISTILL_ACCORDION_MODEL", "pinned-model")
+    monkeypatch.setenv("ACCORDION_SECTION_MODEL", "grok-4.7")
 
-    assert RouterConfig().resolve("accordion") == ("xai", "grok-4.5")
+    assert RouterConfig().resolve("accordion") == ("xai", "pinned-model")
 
 
 def test_call_succeeds_inside_running_event_loop() -> None:
@@ -394,9 +394,9 @@ def test_unknown_provider_raises_configuration_error() -> None:
 @pytest.mark.parametrize(
     ("provider", "model", "expected_provider"),
     [
-        ("gemini", "grok-4.3", "xai"),
-        ("xai", "gemini-3.5-flash", "gemini"),
-        ("anthropic", "grok-4.3", "xai"),
+        ("gemini", "grok-4.7", "xai"),
+        ("xai", "gemini-3.8-flash", "gemini"),
+        ("anthropic", "grok-4.7", "xai"),
     ],
 )
 def test_known_cross_provider_model_is_rejected(
@@ -420,7 +420,7 @@ def test_known_cross_provider_model_is_rejected(
 def test_model_identifier_rejects_surrounding_whitespace() -> None:
     config = RouterConfig(
         provider="xai",
-        model=" grok-4.3",
+        model=" grok-4.7",
         xai_api_key="xai-key",
         cost_mode="paid-ok",
     )
@@ -448,16 +448,16 @@ def test_anthropic_provider_routes_with_key(monkeypatch: pytest.MonkeyPatch) -> 
     config = RouterConfig(
         provider="anthropic",
         anthropic_api_key="test-anthropic",
-        model="claude-sonnet-5",
+        model="claude-sonnet-5-5",
     )
-    mock_prov = _mock_provider(model="claude-sonnet-5")
+    mock_prov = _mock_provider(model="claude-sonnet-5-5")
 
     with patch("distill.llm.router._get_provider", return_value=mock_prov):
         result = call(config, "analysis", "test prompt")
 
     assert result.provider_name == "anthropic"
     assert result.provider_type == "cloud"
-    assert result.model == "claude-sonnet-5"
+    assert result.model == "claude-sonnet-5-5"
     assert mock_prov.call.call_args.kwargs["reasoning_effort"] is None
 
 
@@ -472,17 +472,17 @@ def test_openrouter_provider_routes_with_exact_slug() -> None:
     config = RouterConfig(
         provider="openrouter",
         openrouter_api_key="test-openrouter",
-        model="x-ai/grok-4.6",
+        model="x-ai/grok-4.7",
         cost_mode="paid-ok",
     )
-    mock_prov = _mock_provider(model="x-ai/grok-4.6")
+    mock_prov = _mock_provider(model="x-ai/grok-4.7")
 
     with patch("distill.llm.router._get_provider", return_value=mock_prov):
         result = call(config, "analysis", "test prompt")
 
     assert result.provider_name == "openrouter"
     assert result.provider_type == "cloud"
-    assert result.model == "x-ai/grok-4.6"
+    assert result.model == "x-ai/grok-4.7"
     assert mock_prov.call.call_args.kwargs["reasoning_effort"] == "medium"
 
 
@@ -493,10 +493,10 @@ def test_openrouter_anthropic_route_forwards_explicit_reasoning_effort(
     config = RouterConfig(
         provider="openrouter",
         openrouter_api_key="test-openrouter",
-        model="anthropic/claude-sonnet-5",
+        model="anthropic/claude-sonnet-5.5",
         cost_mode="paid-ok",
     )
-    mock_prov = _mock_provider(model="anthropic/claude-sonnet-5")
+    mock_prov = _mock_provider(model="anthropic/claude-sonnet-5.5")
 
     with patch("distill.llm.router._get_provider", return_value=mock_prov):
         call(config, "analysis", "test prompt")
@@ -508,7 +508,7 @@ def test_openrouter_requires_key_and_concrete_slug() -> None:
     with pytest.raises(ConfigurationError, match="OPENROUTER_API_KEY"):
         RouterConfig(
             provider="openrouter",
-            model="x-ai/grok-4.6",
+            model="x-ai/grok-4.7",
             openrouter_api_key="",
         ).validate_config("analysis")
 
@@ -524,7 +524,7 @@ def test_openrouter_key_and_zdr_load_from_environment(monkeypatch: pytest.Monkey
     with pytest.raises(ConfigurationError, match="author/model"):
         RouterConfig(
             provider="openrouter",
-            model="grok-4.6",
+            model="grok-4.7",
             openrouter_api_key="key",
         ).validate_config("analysis")
 
@@ -544,13 +544,12 @@ def test_no_metered_blocks_openrouter_before_key_or_model_validation() -> None:
 @pytest.mark.parametrize(
     "model",
     [
-        "claude-sonnet-5",
-        "claude-opus-5",
-        "claude-opus-4-8",
-        "claude-opus-4-7",
-        "claude-fable-5",
-        "claude-mythos-5",
-        "CLAUDE-OPUS-5",
+        "claude-sonnet-5-5",
+        "claude-opus-5-5",
+        "claude-fable-5-2",
+        "claude-mythos-5-2",
+        "claude-haiku-5-5",
+        "CLAUDE-OPUS-5-5",
     ],
 )
 def test_anthropic_adaptive_model_configured_effort_is_forwarded(
@@ -576,9 +575,9 @@ def test_anthropic_invalid_effort_is_not_forwarded(monkeypatch: pytest.MonkeyPat
     config = RouterConfig(
         provider="anthropic",
         anthropic_api_key="test-anthropic",
-        model="claude-sonnet-5",
+        model="claude-sonnet-5-5",
     )
-    mock_prov = _mock_provider(model="claude-sonnet-5")
+    mock_prov = _mock_provider(model="claude-sonnet-5-5")
 
     with patch("distill.llm.router._get_provider", return_value=mock_prov):
         call(config, "analysis", "test prompt")
@@ -647,13 +646,13 @@ def test_retired_model_resolution_warns_and_replaces(caplog: Any) -> None:
     """Retired model ids are replaced before provider dispatch."""
     config = _make_config(fast_model="grok-3")
 
-    with caplog.at_level(logging.WARNING, logger="distill.llm.router"):
+    with caplog.at_level(logging.WARNING, logger="distill.llm.model_policy"):
         provider_name, model_id = config.resolve("analysis")
 
     assert provider_name == "xai"
-    assert model_id == "grok-4.6"
+    assert model_id == "grok-4.7"
     assert "grok-3" in caplog.text
-    assert "grok-4.6" in caplog.text
+    assert "grok-4.7" in caplog.text
 
 
 @pytest.mark.parametrize(

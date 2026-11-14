@@ -67,7 +67,7 @@ _safe_chars = st.characters(
 
 model_names = st.text(alphabet=_safe_chars, min_size=1, max_size=50)
 
-# Version strings: non-empty text (e.g., "grok-4.3-2025-05-01")
+# Version strings: non-empty text (e.g., "grok-4.7-2025-05-01")
 version_strings = st.text(
     alphabet=st.characters(
         whitelist_categories=("L", "N", "P"),

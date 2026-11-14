@@ -25,7 +25,7 @@ from distill.llm.usage import LLMUsageAttempt, usage_attempts_from_exception
 def _response(
     *,
     text: str = "answer",
-    model: str = "x-ai/grok-4.6",
+    model: str = "x-ai/grok-4.7",
     cost: object = 0.00125,
     provider: str = "xai",
     prompt_tokens: object = 12,
@@ -95,7 +95,7 @@ def test_success_captures_exact_cost_model_upstream_and_constraints(finish_reaso
 
     result = asyncio.run(
         provider.call(
-            "x-ai/grok-4.6",
+            "x-ai/grok-4.7",
             "hello",
             max_tokens=64,
             temperature=0.2,
@@ -106,7 +106,7 @@ def test_success_captures_exact_cost_model_upstream_and_constraints(finish_reaso
 
     assert result.text == "answer"
     assert result.finish_reason == finish_reason
-    assert result.model == "x-ai/grok-4.6"
+    assert result.model == "x-ai/grok-4.7"
     assert result.billed_cost_usd == 0.00125
     assert result.upstream_provider == "xai"
     assert result.usage_attempts[0].billed_cost_usd == 0.00125
@@ -125,7 +125,7 @@ def test_success_captures_exact_cost_model_upstream_and_constraints(finish_reaso
         "max_price": {"prompt": 2.0, "completion": 6.0, "request": 0},
     }
     catalog.request_shape.assert_called_once_with(
-        "x-ai/grok-4.6",
+        "x-ai/grok-4.7",
         prompt_tokens=1029,
         max_price={"prompt": 2.0, "completion": 6.0},
         reasoning_requested=True,
@@ -146,7 +146,7 @@ def test_endpoint_shape_uses_completion_limit_and_omits_temperature() -> None:
 
     asyncio.run(
         provider.call(
-            "openai/gpt-5.6-terra",
+            "openai/gpt-6.1-terra",
             "hello",
             max_tokens=64,
             temperature=0.2,
@@ -166,7 +166,7 @@ def test_router_metadata_selected_endpoint_takes_priority() -> None:
         metadata_provider="selected-provider",
     )
 
-    result = asyncio.run(provider.call("x-ai/grok-4.6", "hello"))
+    result = asyncio.run(provider.call("x-ai/grok-4.7", "hello"))
 
     assert result.upstream_provider == "selected-provider"
 
@@ -175,7 +175,7 @@ def test_zdr_can_be_explicitly_disabled() -> None:
     provider, client, _catalog = _provider(zdr=False)
     client.chat.completions.create.return_value = _response()
 
-    asyncio.run(provider.call("x-ai/grok-4.6", "hello", retries=0))
+    asyncio.run(provider.call("x-ai/grok-4.7", "hello", retries=0))
 
     preferences = client.chat.completions.create.call_args.kwargs["extra_body"]["provider"]
     assert preferences["zdr"] is False
@@ -195,7 +195,7 @@ def test_unknown_model_runs_without_an_unverified_price_ceiling() -> None:
 
 def test_long_context_price_ceiling_matches_registered_long_rates() -> None:
     ceiling = _registered_price_ceiling(
-        "x-ai/grok-4.6",
+        "x-ai/grok-4.7",
         prompt="x" * 199_000,
         max_tokens=1,
     )
@@ -221,8 +221,8 @@ def test_per_query_pricing_is_not_used_as_a_token_ceiling() -> None:
         "openrouter/free",
         "openrouter/bodybuilder",
         "~anthropic/claude-sonnet-latest",
-        "anthropic/claude-sonnet-4:free",
-        "anthropic/claude-sonnet-4-latest",
+        "anthropic/claude-sonnet-5.5-5:free",
+        "anthropic/claude-sonnet-5.5-5-latest",
         "Claude/Sonnet",
         "missing-slash",
     ],
@@ -255,7 +255,7 @@ def test_missing_usage_and_cost_fall_back_conservatively(caplog: pytest.LogCaptu
         completion_tokens=None,
     )
 
-    result = asyncio.run(provider.call("x-ai/grok-4.6", "hello", max_tokens=9, retries=0))
+    result = asyncio.run(provider.call("x-ai/grok-4.7", "hello", max_tokens=9, retries=0))
 
     assert result.input_tokens == 1029
     assert result.output_tokens == 9
@@ -285,7 +285,7 @@ def test_retry_preserves_each_attempt_and_billed_success() -> None:
     client.chat.completions.create.side_effect = [RuntimeError("temporary"), _response()]
 
     with patch("distill.llm.providers.openrouter.time.sleep") as sleep:
-        result = asyncio.run(provider.call("x-ai/grok-4.6", "hello", max_tokens=5, retries=1))
+        result = asyncio.run(provider.call("x-ai/grok-4.7", "hello", max_tokens=5, retries=1))
 
     assert [row.outcome for row in result.usage_attempts] == ["error", "success"]
     assert result.usage_attempts[0].billed_cost_usd is None
@@ -301,7 +301,7 @@ def test_exhausted_retry_attaches_conservative_attempts() -> None:
         patch("distill.llm.providers.openrouter.time.sleep"),
         pytest.raises(RuntimeError, match="offline") as raised,
     ):
-        asyncio.run(provider.call("x-ai/grok-4.6", "hello", retries=1))
+        asyncio.run(provider.call("x-ai/grok-4.7", "hello", retries=1))
 
     assert len(usage_attempts_from_exception(raised.value)) == 2
 
@@ -314,7 +314,7 @@ def test_http_error_is_sanitized_without_losing_status_or_usage() -> None:
     client.chat.completions.create.side_effect = SensitiveError("raw metadata user_id=user-secret")
 
     with pytest.raises(OpenRouterRequestError, match="rate-limited") as raised:
-        asyncio.run(provider.call("x-ai/grok-4.6", "hello", retries=0))
+        asyncio.run(provider.call("x-ai/grok-4.7", "hello", retries=0))
 
     assert raised.value.status_code == 429
     assert "user-secret" not in str(raised.value)
@@ -340,7 +340,7 @@ def test_usage_sink_can_stop_retry_after_accounting() -> None:
     with pytest.raises(Stop):
         asyncio.run(
             provider.call(
-                "x-ai/grok-4.6",
+                "x-ai/grok-4.7",
                 "hello",
                 retries=2,
                 usage_sink=stop,

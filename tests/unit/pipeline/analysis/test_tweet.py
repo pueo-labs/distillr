@@ -45,7 +45,7 @@ def _tweet(**overrides: Any) -> TweetRecord:
     return TweetRecord(**defaults)
 
 
-def _fake_llm(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm(text: str = "body", model: str = "grok-4.7"):
     def _call(config: Any, workload_tag: str, prompt: str, **kwargs: Any) -> LLM_Response:
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 

@@ -1,6 +1,6 @@
 """Tests for bold-wrapped heading normalization on the markdown-artifact funnel.
 
-Dogfood catch (2026-06-11): grok-4.3 emitted every synthesis section heading as
+Dogfood catch (2026-06-11): grok-4.7 emitted every synthesis section heading as
 ``**## Cross-Paper Claims**``, which renders as literal bold text instead of a
 heading in Obsidian and on GitHub. The funnel unwraps that class
 deterministically at write time.

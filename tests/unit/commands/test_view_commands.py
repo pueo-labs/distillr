@@ -719,7 +719,7 @@ class TestSynthesisAndFindings:
             budgets.append(tracker.budget if tracker else None)
             if tracker:
                 tracker.record(
-                    TokenUsage(prompt_tokens=1000, completion_tokens=0, model="grok-4.3")
+                    TokenUsage(prompt_tokens=1000, completion_tokens=0, model="grok-4.7")
                 )
             topic_dir = config.topic_dir(topic)
             topic_dir.mkdir(parents=True, exist_ok=True)
@@ -772,7 +772,7 @@ class TestSynthesisAndFindings:
                     TokenUsage(
                         prompt_tokens=1_000_000,
                         completion_tokens=1_000_000,
-                        model="grok-4.3",
+                        model="grok-4.7",
                     )
                 )
 

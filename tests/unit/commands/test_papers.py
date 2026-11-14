@@ -1019,7 +1019,7 @@ def test_papers_run_projection_warns_on_metered_cloud(paper_config, capsys) -> N
         synthesis_calls=1,
         projected_cost=1.2,
         config=paper_config,
-        router_config=_Router("xai", "grok-4.6"),
+        router_config=_Router("xai", "grok-4.7"),
     )
     output = capsys.readouterr().out
     assert "Projected spend $1.20 on a metered cloud API" in output
@@ -1029,7 +1029,7 @@ def test_papers_run_projection_warns_on_metered_cloud(paper_config, capsys) -> N
 def test_planned_paper_seconds_are_zero_on_cloud_and_positive_when_benched(
     paper_config,
 ) -> None:
-    assert papers_cmd._planned_paper_seconds(_Router("xai", "grok-4.6"), paper_config) == 0.0
+    assert papers_cmd._planned_paper_seconds(_Router("xai", "grok-4.7"), paper_config) == 0.0
     assert papers_cmd._planned_paper_seconds(_Router("ollama", "qwen3.8:27b"), paper_config) == 0.0
     _write_paper_bench(paper_config.library_dir)
     assert papers_cmd._planned_paper_seconds(_Router("ollama", "qwen3.8:27b"), paper_config) > 0

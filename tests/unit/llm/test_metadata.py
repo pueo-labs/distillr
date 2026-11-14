@@ -77,7 +77,7 @@ def test_provider_type_classification(provider_name: str, model: str) -> None:
 
 def test_exact_cloud_model_lookup() -> None:
     """Known cloud models resolve to their documented context window."""
-    metadata = asyncio.run(resolve_metadata("xai", "grok-4.6"))
+    metadata = asyncio.run(resolve_metadata("xai", "grok-4.7"))
     assert metadata.context_window == 500_000
     assert metadata.provider_type == "cloud"
 
@@ -119,28 +119,28 @@ def test_current_model_context_windows_preserve_provider_slug(
     assert sync.provider_name == provider
 
 
-def test_gemini37_context_window_lookup() -> None:
-    metadata = asyncio.run(resolve_metadata("gemini", "gemini-3.7-flash"))
+def test_gemini38_context_window_lookup() -> None:
+    metadata = asyncio.run(resolve_metadata("gemini", "gemini-3.8-flash"))
+    assert metadata.context_window == 1_048_576
+    assert metadata.provider_type == "cloud"
+
+
+def test_anthropic_sonnet55_context_window_lookup() -> None:
+    """Claude Sonnet 5.5 resolves to the documented 1M context window."""
+    metadata = asyncio.run(resolve_metadata("anthropic", "claude-sonnet-5-5"))
     assert metadata.context_window == 1_000_000
     assert metadata.provider_type == "cloud"
 
 
-def test_anthropic_sonnet5_context_window_lookup() -> None:
-    """Claude Sonnet 5 resolves to the documented 1M context window."""
-    metadata = asyncio.run(resolve_metadata("anthropic", "claude-sonnet-5"))
-    assert metadata.context_window == 1_000_000
-    assert metadata.provider_type == "cloud"
-
-
-@pytest.mark.parametrize("model", ["claude-fable-5", "claude-mythos-5", "claude-opus-5"])
+@pytest.mark.parametrize("model", ["claude-fable-5-2", "claude-mythos-5-2", "claude-opus-5-5"])
 def test_anthropic_current_capability_tiers_have_one_million_context(model: str) -> None:
     metadata = asyncio.run(resolve_metadata("anthropic", model))
     assert metadata.context_window == 1_000_000
     assert metadata.provider_type == "cloud"
 
 
-@pytest.mark.parametrize("model", ["gpt-5.6", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"])
-def test_reserved_openai_56_context_metadata(model: str) -> None:
+@pytest.mark.parametrize("model", ["gpt-6-astra", "gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-luna"])
+def test_reserved_openai_context_metadata(model: str) -> None:
     metadata = asyncio.run(resolve_metadata("openai", model))
     assert metadata.context_window == 1_050_000
     assert metadata.provider_type == "cloud"
@@ -148,13 +148,13 @@ def test_reserved_openai_56_context_metadata(model: str) -> None:
 
 def test_prefix_cloud_model_lookup() -> None:
     """Cloud models with suffixes resolve via prefix matching."""
-    metadata = asyncio.run(resolve_metadata("xai", "grok-4.3-some-variant"))
-    assert metadata.context_window == 1_000_000
+    metadata = asyncio.run(resolve_metadata("xai", "grok-4.7-some-variant"))
+    assert metadata.context_window == 500_000
 
 
-def test_current_grok_420_non_reasoning_slug_has_one_million_context() -> None:
-    metadata = asyncio.run(resolve_metadata("xai", "grok-4.20-0309-non-reasoning"))
-    assert metadata.context_window == 1_000_000
+def test_current_grok_default_has_five_hundred_thousand_context() -> None:
+    metadata = asyncio.run(resolve_metadata("xai", "grok-4.7"))
+    assert metadata.context_window == 500_000
 
 
 def test_unknown_cloud_model_defaults() -> None:
@@ -182,7 +182,7 @@ def test_local_provider_with_context_window_method() -> None:
 
 
 def test_resolve_metadata_sync_matches_async_cloud_path() -> None:
-    metadata = resolve_metadata_sync("xai", "grok-4.6")
+    metadata = resolve_metadata_sync("xai", "grok-4.7")
     assert metadata.context_window == 500_000
     assert metadata.provider_type == "cloud"
 
@@ -264,7 +264,7 @@ def test_local_call_timeout_clamps_unbounded_default(
     assert local_call_timeout(10**4000) == LOCAL_CALL_TIMEOUT_MAX
 
 
-@pytest.mark.parametrize("model", ["claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6"])
+@pytest.mark.parametrize("model", ["claude-opus-5-5", "claude-opus-5.5"])
 def test_anthropic_opus_context_window_lookup(model: str) -> None:
     """The Opus tier is 1M-context; a missing entry silently over-chunked input."""
     metadata = asyncio.run(resolve_metadata("anthropic", model))
@@ -275,9 +275,9 @@ def test_anthropic_opus_context_window_lookup(model: str) -> None:
 @pytest.mark.parametrize(
     ("provider", "model"),
     [
-        ("anthropic", "Claude-Opus-4-8"),
-        ("anthropic", "  claude-sonnet-5  "),
-        ("xai", "GROK-4.3"),
+        ("anthropic", "Claude-Opus-5-5"),
+        ("anthropic", "  claude-sonnet-5-5  "),
+        ("anthropic", "CLAUDE-HAIKU-5-5"),
     ],
 )
 def test_context_window_lookup_is_case_and_whitespace_insensitive(

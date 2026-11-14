@@ -40,8 +40,8 @@ def test_swapping_only_the_recipe_invalidates_analysis_reuse(tmp_path) -> None:
         before = len(calls)
         run_model_eval(
             "paper",
-            ["grok-4.3"],
-            anchor="grok-4.3",
+            ["grok-4.7"],
+            anchor="grok-4.7",
             judge_model="",
             cache_dir=tmp_path,
             analyze=fake,
@@ -60,8 +60,8 @@ def test_swapping_only_the_recipe_invalidates_analysis_reuse(tmp_path) -> None:
     before = len(calls)
     cached = run_model_eval(
         "paper",
-        ["grok-4.3"],
-        anchor="grok-4.3",
+        ["grok-4.7"],
+        anchor="grok-4.7",
         judge_model="",
         cache_dir=tmp_path,
         analyze=fake,
@@ -153,16 +153,16 @@ def test_development_fixtures_bind_identity_and_do_not_splice_prompts(tmp_path) 
         ledger.add("planned", digest)
         if item["behavior"] == "abstain":
             ledger.add("abstained", digest, detail=fixture.id)
-        analysis = _analyze("grok-4.3", fixture, analyze, tracker, tmp_path, digest)
+        analysis = _analyze("grok-4.7", fixture, analyze, tracker, tmp_path, digest)
         assert analysis.error == ""
         for needle in item["required"]:
             assert str(needle) in analysis.output
         ledger.add("completed", digest, detail="analyzed")
-        again = _analyze("grok-4.3", fixture, analyze, tracker, tmp_path, digest)
+        again = _analyze("grok-4.7", fixture, analyze, tracker, tmp_path, digest)
         assert again.cached is True
         ledger.add("completed", digest, detail="cache-hit")
         other = recipe_digest(ResearchRecipe("other", ("version",), "different section"))
-        missed = _analyze("grok-4.3", fixture, analyze, tracker, tmp_path, other)
+        missed = _analyze("grok-4.7", fixture, analyze, tracker, tmp_path, other)
         assert missed.cached is False
     assert ledger.counts()["abstained"] == 1
     assert ledger.counts()["rejected"] == 0
@@ -294,12 +294,12 @@ def test_harness_retry_after_failure_is_not_a_cache_hit(tmp_path) -> None:
     ledger = AttemptLedger()
     tracker = CostTracker()
     ledger.add("planned", digest)
-    failed = _analyze("grok-4.3", fixture, analyze, tracker, tmp_path, digest)
+    failed = _analyze("grok-4.7", fixture, analyze, tracker, tmp_path, digest)
     assert failed.error
     assert failed.cached is False
     ledger.add("failed", digest, detail="retry")
     ledger.add("planned", digest, detail="retry")
-    completed = _analyze("grok-4.3", fixture, analyze, tracker, tmp_path, digest)
+    completed = _analyze("grok-4.7", fixture, analyze, tracker, tmp_path, digest)
     assert completed.error == ""
     assert completed.cached is False
     ledger.add("completed", digest, detail="analyzed")

@@ -134,7 +134,7 @@ Pick or change the analysis route with the CLI (writes `.env` only on `set`):
 ```bash
 distill provider                              # show active provider + model
 distill provider list gemini                  # known models + prices
-distill provider set gemini gemini-3.7-flash  # persist default route
+distill provider set gemini gemini-3.8-flash  # persist default route
 distill --provider gemini --model gemini-3.5-flash-lite papers "..." --limit 5
 ```
 
@@ -200,7 +200,7 @@ strict parameter enforcement. Calls in one Distill run share a random
 and prompt-cache locality. Distill does not enable OpenRouter's beta response
 caching.
 
-For registered models (such as `x-ai/grok-4.6` or `deepseek/deepseek-v4.1-flash`),
+For registered models (such as `x-ai/grok-4.7` or `deepseek/deepseek-v4.1-flash`),
 Distill sends an upstream per-token price ceiling, preauthorizes each bounded
 attempt against configured workflow budgets, and records OpenRouter's exact
 reported billed cost after the call. An unregistered model may run only without

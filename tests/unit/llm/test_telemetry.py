@@ -151,7 +151,7 @@ def test_unwritable_path_logs_diagnostic_without_raising(tmp_path: Path, caplog:
     bad_ops_dir = str(blocker / "subdir")
 
     record = Telemetry_Record(
-        model="grok-4.3",
+        model="grok-4.7",
         workload_tag="analysis",
         input_tokens=100,
         output_tokens=50,
@@ -168,7 +168,7 @@ def test_unwritable_path_logs_diagnostic_without_raising(tmp_path: Path, caplog:
 def test_nonfinite_provider_record_is_not_written(tmp_path: Path, caplog: Any) -> None:
     ops_dir = tmp_path / "ops"
     record = Telemetry_Record(
-        model="grok-4.3",
+        model="grok-4.7",
         workload_tag="analysis",
         input_tokens=100,
         output_tokens=50,
@@ -193,7 +193,7 @@ def test_unexpected_provider_telemetry_failure_is_nonfatal(
 
     monkeypatch.setattr(telemetry_module, "append_jsonl_line", raise_unexpected)
     record = Telemetry_Record(
-        model="grok-4.3",
+        model="grok-4.7",
         workload_tag="analysis",
         input_tokens=100,
         output_tokens=50,
@@ -214,7 +214,7 @@ def test_malformed_jsonl_lines_are_skipped(tmp_path: Path) -> None:
     jsonl_path = Path(ops_dir) / "telemetry.jsonl"
 
     good_record = {
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "analysis",
         "input_tokens": 100,
         "output_tokens": 50,
@@ -236,7 +236,7 @@ def test_malformed_jsonl_lines_are_skipped(tmp_path: Path) -> None:
 
     results = top_n_by_tokens(ops_dir, n=10)
     assert len(results) == 1
-    assert results[0].model == "grok-4.3"
+    assert results[0].model == "grok-4.7"
 
 
 def test_strict_streaming_reader_isolates_corrupt_and_oversized_rows(
@@ -248,7 +248,7 @@ def test_strict_streaming_reader_isolates_corrupt_and_oversized_rows(
     ops_dir.mkdir()
     path = ops_dir / "telemetry.jsonl"
     valid = {
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "report",
         "input_tokens": 200,
         "output_tokens": 100,
@@ -383,7 +383,7 @@ def test_invalid_token_type_lines_are_skipped(tmp_path: Path) -> None:
     jsonl_path = Path(ops_dir) / "telemetry.jsonl"
 
     invalid_record = {
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "analysis",
         "input_tokens": "many",
         "output_tokens": 50,
@@ -391,7 +391,7 @@ def test_invalid_token_type_lines_are_skipped(tmp_path: Path) -> None:
         "outcome": "success",
     }
     valid_record = {
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "report",
         "input_tokens": 200,
         "output_tokens": 100,
@@ -415,7 +415,7 @@ def test_ops_dir_auto_creation(tmp_path: Path) -> None:
     assert not Path(ops_dir).exists()
 
     record = Telemetry_Record(
-        model="grok-4.3",
+        model="grok-4.7",
         workload_tag="analysis",
         input_tokens=100,
         output_tokens=50,
@@ -437,7 +437,7 @@ def test_provider_writer_isolates_an_unterminated_tail(tmp_path: Path) -> None:
     write_record(
         str(ops_dir),
         Telemetry_Record(
-            model="grok-4.3",
+            model="grok-4.7",
             workload_tag="analysis",
             input_tokens=100,
             output_tokens=50,
@@ -448,13 +448,13 @@ def test_provider_writer_isolates_an_unterminated_tail(tmp_path: Path) -> None:
 
     lines = path.read_text(encoding="utf-8").splitlines()
     assert lines[0] == '{"torn":'
-    assert json.loads(lines[1])["model"] == "grok-4.3"
+    assert json.loads(lines[1])["model"] == "grok-4.7"
 
 
 def test_empty_ops_dir_skips_write() -> None:
     """write_record with empty ops_dir is a no-op."""
     record = Telemetry_Record(
-        model="grok-4.3",
+        model="grok-4.7",
         workload_tag="analysis",
         input_tokens=100,
         output_tokens=50,
@@ -551,7 +551,7 @@ def test_backward_compat_records_without_new_fields(tmp_path: Path) -> None:
 
     # Simulate an old record without the new fields
     old_record = {
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "analysis",
         "input_tokens": 1000,
         "output_tokens": 500,
@@ -567,7 +567,7 @@ def test_backward_compat_records_without_new_fields(tmp_path: Path) -> None:
     results = top_n_by_tokens(ops_dir, n=1)
     assert len(results) == 1
     got = results[0]
-    assert got.model == "grok-4.3"
+    assert got.model == "grok-4.7"
     # New fields should default to empty/zero
     assert got.provider_type == ""
     assert got.provider_name == ""

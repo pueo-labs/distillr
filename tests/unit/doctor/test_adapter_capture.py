@@ -324,9 +324,9 @@ def test_write_grok_captured_result_writes_usage_and_manifest(tmp_path):
             scratch_root=tmp_path,
             workload=_workload(),
             stdout_json=json.dumps(
-                {"model": "grok-4.3", "usage": {"input_tokens": 100, "output_tokens": 30}}
+                {"model": "grok-4.7", "usage": {"input_tokens": 100, "output_tokens": 30}}
             ),
-            model="grok-4.3",
+            model="grok-4.7",
         )
     )
 

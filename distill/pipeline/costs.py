@@ -416,15 +416,16 @@ class CostTracker:
     def authorize_transcription(self, provider: str, duration_s: float, *, model: str = "") -> None:
         """Refuse a known-price transcription before provider contact."""
 
-        del model
         duration = normalize_transcription_duration(duration_s)
         with self._lock:
-            if self.budget is not None and not has_known_transcription_pricing(provider):
+            if self.budget is not None and not has_known_transcription_pricing(
+                provider, model=model
+            ):
                 raise CostPolicyError(
                     f"Budget cannot authorize transcription provider '{provider}' because "
                     "Distill has no verified duration price for it."
                 )
-            projected = self._projected_total(transcription_cost(provider, duration))
+            projected = self._projected_total(transcription_cost(provider, duration, model=model))
             if self.budget is not None and projected > self.budget:
                 raise ProjectedBudgetExceededError(projected, self.budget)
 
@@ -438,14 +439,13 @@ class CostTracker:
     ) -> Generator[None, None, None]:
         """Reserve one duration-priced cloud transcription attempt."""
 
-        del model
         duration = normalize_transcription_duration(duration_s)
-        if self.budget is not None and not has_known_transcription_pricing(provider):
+        if self.budget is not None and not has_known_transcription_pricing(provider, model=model):
             raise CostPolicyError(
                 f"Budget cannot reserve transcription provider '{provider}' because "
                 "Distill has no verified duration price for it."
             )
-        with self.reserve_budget(transcription_cost(provider, duration)):
+        with self.reserve_budget(transcription_cost(provider, duration, model=model)):
             yield
 
     def record_transcription(
@@ -464,13 +464,13 @@ class CostTracker:
         if outcome not in {"completed", "failed"}:
             raise ValueError(f"unsupported transcription outcome: {outcome}")
         duration = normalize_transcription_duration(duration_s)
-        known = has_known_transcription_pricing(provider)
+        known = has_known_transcription_pricing(provider, model=model)
         if self.budget is not None and not known:
             raise CostPolicyError(
                 f"Budget cannot record transcription provider '{provider}' because "
                 "Distill has no verified duration price for it."
             )
-        cost = transcription_cost(provider, duration) if known else 0.0
+        cost = transcription_cost(provider, duration, model=model) if known else 0.0
         with self._lock:
             self.transcriptions.append(
                 TranscriptionUsage(

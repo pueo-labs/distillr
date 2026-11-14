@@ -468,7 +468,7 @@ class TestDoctorHumanOutputBranches:
 
         assert "faster-whisper" in result.output
         assert "Provider routing:" in result.output
-        assert "openai whisper-1" in result.output
+        assert "openai gpt-transcribe" in result.output
         assert "whisper models" in result.output
 
 
@@ -700,7 +700,7 @@ class TestDoctorJsonExtras:
 
         assert data["ready"] is False
         assert data["local_inference"]["configured_provider"] == "ollama"
-        assert data["local_inference"]["configured_model"] == "grok-4.6"
+        assert data["local_inference"]["configured_model"] == "grok-4.7"
         assert data["local_inference"]["configured_model_ready"] is False
 
     def test_json_local_readiness_matches_exact_configured_model(self, tmp_path, monkeypatch):
@@ -734,7 +734,7 @@ class TestDoctorJsonExtras:
         monkeypatch.setattr(
             doctor_mod,
             "_doctor_validate_key",
-            lambda provider, cfg: ("ok", "grok-4.3") if provider == "xai" else ("not_set", ""),
+            lambda provider, cfg: ("ok", "grok-4.7") if provider == "xai" else ("not_set", ""),
         )
         monkeypatch.setenv("DISTILL_PROVIDER", "ollama")
         monkeypatch.setenv("DISTILL_MODEL", "missing-model")
@@ -790,7 +790,7 @@ class TestDoctorJsonExtras:
             del cfg
             if provider == "xai":
                 assert model == "grok-unavailable-route"
-                return ("ok", "grok-4.3")
+                return ("ok", "grok-4.7")
             return ("not_set", "")
 
         monkeypatch.setattr(doctor_mod, "_doctor_validate_key", validate)

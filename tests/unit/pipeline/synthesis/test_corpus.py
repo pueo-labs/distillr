@@ -18,7 +18,7 @@ from distill.pipeline.synthesis.corpus import (
 )
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 
@@ -153,7 +153,7 @@ def test_synthesize_corpus_includes_channels_and_ignores_rolled_up_topic_synthes
 
     def _capture(config, workload_tag, prompt, **kwargs):
         captured["prompt"] = prompt
-        return LLM_Response(text="corpus", input_tokens=10, output_tokens=20, model="grok-4.3")
+        return LLM_Response(text="corpus", input_tokens=10, output_tokens=20, model="grok-4.7")
 
     with patch("distill.pipeline.synthesis.corpus.llm_call", _capture):
         synthesize_corpus(topic, config)
@@ -354,7 +354,7 @@ def test_two_pass_uses_latest_claim_per_id(tmp_path):
             text="Updated accuracy is 80.1% [C1].",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
     _seed_claim_history(topic_dir, [first, refreshed])

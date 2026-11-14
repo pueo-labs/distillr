@@ -32,13 +32,9 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_TIMEOUT_SECONDS = 300
 
-# Gemini 3.8 Flash, 3.7 Flash, 3.6 Flash, and 3.5 Flash-Lite deprecate sampling
-# parameters (temperature / top_p / top_k). The API currently ignores them and
-# will reject them on future generations; omit rather than forward.
+# Current Gemini chat models omit sampling parameters (temperature / top_p / top_k).
 _NO_CUSTOM_SAMPLING_PREFIXES: tuple[str, ...] = (
     "gemini-3.8",
-    "gemini-3.7",
-    "gemini-3.6",
     "gemini-3.5-flash-lite",
     "gemini-4",
 )

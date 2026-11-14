@@ -13,12 +13,12 @@ budget fails closed before client construction, File Search store creation,
 upload, or provider contact. Run it only without a dollar cap as an explicit
 metered choice, or use `corpus-report` for enforceable token-based budgeting.
 
-Cold-start figures below use the **`grok-4.6` default** at $2 input and $6
+Cold-start figures below use the **`grok-4.7` default** at $2 input and $6
 output per 1M short-context tokens. They are derived from representative per-stage token
 volumes in `distill/pipeline/cost_estimates.py`, so the estimate follows the
 selected model rather than a fixed dollar table. When sufficient clean history
 exists, the pre-run estimate self-calibrates against the actual
-`cost_log.jsonl` rows. Use `distill eval --models grok-4.6,<candidate>` before
+`cost_log.jsonl` rows. Use `distill eval --models grok-4.7,<candidate>` before
 moving a workload to a cheaper cloud or local model.
 
 Local analysis is not stale-source analysis. When `DISTILL_PROVIDER=ollama` or
@@ -65,9 +65,9 @@ analysis, a finite overnight window, leftover work tomorrow.
 | Deterministic fetch, parse, audit, and local extraction | Yes | No model bill | Still uses network for public sources when the command asks for them. |
 | Local model servers, Ollama and LM Studio | Yes | No incremental vendor API bill only for strict loopback endpoints | Uses local hardware, electricity, and time. Remote or malformed endpoint overrides are classified as unknown, not local. Quality must clear `distill eval` before a workload should default to it. |
 | Calibrated cloud routes, xAI and Gemini | Yes | Metered API spend | Default quality floor for analysis and Deep Research style work. |
-| Opt-in Anthropic API route | Yes | Metered API spend | Claude Sonnet 5 is wired for explicit opt-in use, but it is not a calibrated default. |
+| Opt-in Anthropic API route | Yes | Metered API spend | Claude Sonnet 5.5 (`claude-sonnet-5-5`) is wired for explicit opt-in use, but it is not a calibrated default. |
 | Opt-in OpenRouter API route | Yes | Metered API spend | Requires a concrete `author/model` slug. Distill requests privacy-constrained, price-sorted upstream routing, records reported billed cost, and never selects it automatically. |
-| Reserved OpenAI analysis route | No | Metered API spend when implemented | OpenAI is not a live analysis provider yet. OpenAI Whisper transcription is separate. |
+| Reserved OpenAI analysis route | No | Metered API spend when implemented | OpenAI is not a live analysis provider yet. The cloud transcription fallback uses `gpt-transcribe` at $0.27 per hour. |
 | Remote Ollama or LM Studio adapter | Yes in `auto` or `paid-ok` | External cost unavailable | Distill records attempts but cannot prove host billing or price the external service. Eval refuses these unpriced routes. |
 | Deferred `agent` task-file route plus active host worker | Yes, explicit handoff | Host-managed; external cost unavailable | This writes a structured task, lets an already active agent session claim it into scratch through `distill worker`, and accepts only a validated result plus receipt. Distill does not execute the assistant or inspect its auth, so the route remains blocked in `no-metered`. |
 | Plan-quota CLI routes, such as Codex CLI, Claude Code, Grok Build, Gemini CLI, and Antigravity `agy` | Planned | Included quota only if proven | Not live providers yet. Adapter doctor preflights, structured support-statement details checked against current 2026-06-30 vendor docs, local config auth-marker scanning, strict `adapter-workload.v1` input packages, strict `adapter-result.v1` manifest checks with quota-stop metadata, a scratch-only runner primitive, a checked workload runner, a native result writer, adapter-specific native usage capture, a manifest-to-ledger helper, and blocked read-only command planners exist. No plan-quota support statement is current for no-metered routing yet because paid credits, overages, API-key modes, gateway routes, or unproved session auth remain possible. Routes still need included-plan auth proof, native schema enforcement where the CLI supports it, real installed-session validation, and `distill eval` evidence. |
@@ -257,7 +257,7 @@ Use the user-facing command key for the cap. Common keys include `ask`,
 The `doctor` cap is shared across all live cloud-key probes in one doctor run.
 For a one-run OpenRouter validation on PowerShell, set
 `$env:DISTILL_COST_WORKFLOW_BUDGETS = "doctor=20"`, run `distill --provider
-openrouter --model x-ai/grok-4.6 --cost-mode paid-ok doctor`, then remove the
+openrouter --model x-ai/grok-4.7 --cost-mode paid-ok doctor`, then remove the
 temporary environment variable. Provider-reported billed cost is written to the
 same durable ledger as normal model work.
 
@@ -306,7 +306,7 @@ The provider cache policy is in
 
 ## Per-stage cost
 
-| Stage | Planning cost or status | Basis at grok-4.6 |
+| Stage | Planning cost or status | Basis at grok-4.7 |
 |---|---|---|
 | YouTube caption extraction | **$0** | yt-dlp pulls auto-generated captions |
 | arXiv PDF download + text extraction | **$0** | pypdf, local |
@@ -376,7 +376,7 @@ The pre-run estimate shown under a discover preview (and per option in the fresh
 
 ## Budget guidance
 
-- Bulk video analysis is cheap but not free on grok-4.6: the cold-start
+- Bulk video analysis is cheap but not free on grok-4.7: the cold-start
   estimate is about $0.062 per full video, so 1,000 videos is about $62 before
   calibration. To drive marginal API cost toward $0, use a local model only
   after `distill eval` confirms it clears the workload quality bar.
@@ -442,42 +442,34 @@ distill topic-watch run <topic> --ignore-budget       # explicit override
 
 | Model | Input | Output | Context | Used for |
 |---|---|---|---|---|
-| `grok-4.6` | $2.00/1M | $6.00/1M | 500K | Default for analysis, reranking, synthesis, briefs, papers, sites, and report section writing |
-| `grok-4.5` | $2.00/1M | $6.00/1M | 500K | Supported explicit override and previous default |
-| `grok-4.3` | $1.25/1M | $2.50/1M | 1M | Supported explicit override and historical default |
-| `grok-4-1-fast-reasoning` | - | - | - | **Retired 2026-05-15**; Distill substitutes the current `grok-4.6` default. The historical registry price remains for old ledger rows. |
-| `grok-4.20-0309-non-reasoning` | $1.25/1M | $2.50/1M | 1M | Supported explicit non-reasoning override |
-| `grok-4.20-0309-reasoning` | $1.25/1M | $2.50/1M | 1M | Supported explicit override |
+| `grok-4.7` | $2.00/1M | $6.00/1M | 500K | Default for analysis, reranking, synthesis, briefs, papers, sites, and report section writing |
 | `deep-research-preview-04-2026` | token and tool based | External cost unavailable; $2.50 Distill planning placeholder | N/A | Accordion dossier, `deep-research` profile, `distill research-brief`; hard budgets refuse before remote setup |
 | `deep-research-max-preview-04-2026` | token and tool based | External cost unavailable; $5 Distill planning placeholder | N/A | Explicit deeper-research override; hard budgets refuse before remote setup |
-| `gemini-3.7-flash` | $0.75/1M through 2026-12-31, then $1.50/1M | $3.75/1M through 2026-12-31, then $7.50/1M | 1M | Preferred optional Gemini-provider chat model; doctor probe default |
-| `gemini-3.6-flash` | $0.75/1M through 2026-12-31, then $1.50/1M | $3.75/1M through 2026-12-31, then $7.50/1M | 1M | Supported previous Gemini-provider chat default |
-| `gemini-3.5-flash` | $1.50/1M | $9.00/1M | 1M | Optional Gemini-provider chat model (GA 2026-05-19); still selectable |
-| `gemini-3.5-flash-lite` | $0.30/1M | $2.50/1M | 1M | High-throughput optional Gemini chat model (GA 2026-07-21) |
-| `gemini-3.1-pro-preview` | $2.00/1M | $12.00/1M | 1M | Optional Gemini model; prompts over 200K use $4/$18 rates |
-| `claude-sonnet-5` | $2.00/1M | $10.00/1M | 1M | Optional Anthropic-provider chat model; Anthropic cancelled the previously announced increase |
-| `claude-opus-5` | $5.00/1M | $25.00/1M | 1M | Optional Anthropic model |
-| `claude-fable-5` | $10.00/1M | $50.00/1M | 1M | Optional Anthropic model; highest widely available capability tier |
-| `gpt-5.6-sol` | $5.00/1M | $30.00/1M | 1.05M | Reserved metadata only; OpenAI analysis route is not implemented |
-| `gpt-5.6` | $5.00/1M | $30.00/1M | 1.05M | Reserved alias for Sol; OpenAI analysis route is not implemented |
-| `gpt-5.6-terra` | $2.50/1M | $15.00/1M | 1.05M | Reserved metadata only; OpenAI analysis route is not implemented |
-| `gpt-5.6-luna` | $1.00/1M | $6.00/1M | 1.05M | Reserved metadata only; OpenAI analysis route is not implemented |
+| `gemini-4-carbon` | $2.00/1M through 2026-11-30, then $4.00/1M | $10.00/1M through 2026-11-30, then $20.00/1M | 1M | Gemini Pro role |
+| `gemini-3.8-flash` | $0.75/1M through 2026-12-31, then $1.50/1M | $3.75/1M through 2026-12-31, then $7.50/1M | 1M | Optional Gemini Flash default and doctor probe |
+| `gemini-3.5-flash-lite` | $0.30/1M | $2.50/1M | 1M | Gemini lite role |
+| `claude-fable-5-2` | $8.00/1M | $40.00/1M | 1M | Current Anthropic top tier. Mythos 5.2 uses the same rates and is limited availability |
+| `claude-opus-5-5` | $4.00/1M | $20.00/1M | 1M | Current Anthropic Opus tier |
+| `claude-sonnet-5-5` | $2.00/1M | $10.00/1M | 1M | Optional Anthropic default and doctor probe |
+| `claude-haiku-5-5` | $0.10/1M, or $0.50/1M above 100K prompt tokens | $0.50/1M, or $2.50/1M above 100K prompt tokens | 1M | Current Anthropic Haiku tier |
+| `gpt-6-astra` | $10.00/1M | $50.00/1M | 1.05M | Reserved OpenAI flagship. The analysis route is not implemented |
+| `gpt-6.1-sol` | $2.00/1M | $10.00/1M | 1.05M | Reserved OpenAI balanced id. The analysis route is not implemented |
+| `gpt-6.1-terra` | $1.00/1M | $5.00/1M | 1.05M | Reserved OpenAI mid id. The analysis route is not implemented |
+| `gpt-6-luna` | $0.10/1M | $0.50/1M | 1.05M | OpenAI key probe. The analysis route is not implemented |
 
-As of 2026-08-13, both xAI tiers default to `grok-4.6`. Explicit model
-overrides remain available and are costed by the same registry.
+Both xAI tiers default to `grok-4.7`. A configured superseded text id is
+rewritten to `grok-4.7` before the call.
 
-xAI's short-context prices above apply below 200K prompt tokens. At 200K or
-more, Grok 4.6 and 4.5 cost $4 input and $12 output per 1M tokens, while Grok
-4.3 and the registered Grok 4.20 family cost $2.50 input and $5 output. The
-threshold applies per provider request, not to a run's aggregate tokens.
+`grok-4.7` short-context prices apply below 200K prompt tokens. At 200K or
+more, the request uses $4 input and $12 output per 1M tokens for every token.
+The threshold applies per provider request, not to a run's aggregate tokens.
 Distill prices each ledger entry at the applicable tier and keeps sequential
 report estimates split across their representative calls.
 
-Gemini 3.1 Pro Preview changes from $2/$12 to $4/$18 when a prompt exceeds
-200K tokens. The reserved GPT-5.6 family changes to 2x input and 1.5x output
-when a prompt exceeds 272K tokens. These thresholds are registered even though
-OpenAI is not yet a routable Distill analysis provider, so future estimates
-cannot inherit a known undercount.
+`gpt-6-astra`, `gpt-6.1-sol`, `gpt-6.1-terra`, and `gpt-6-luna` use 2x input
+and 1.5x output for the whole request once a prompt exceeds 272K tokens.
+OpenAI is not yet a routable Distill analysis provider. `gemini-4-carbon`
+moves from $2/$10 to $4/$20 on 2026-12-01.
 
 The registry was reverified on 2026-09-15. `distill provider show` and
 `distill provider list <provider>` expose the same review date and source URL
@@ -493,15 +485,15 @@ without making a network call. Authoritative pricing and capability sources are 
 [OpenRouter models catalog](https://openrouter.ai/models),
 [DeepSeek pricing guide](https://api-docs.deepseek.com/quick_start/pricing),
 [xAI speech-to-text pricing](https://docs.x.ai/developers/models/speech-to-text),
-and [OpenAI Whisper pricing](https://developers.openai.com/api/docs/models/whisper-1).
+and [OpenAI gpt-transcribe](https://developers.openai.com/api/docs/models/gpt-transcribe).
 
 ## Overriding models
 
 All model defaults are overridable via `.env`:
 
 ```bash
-DISTILL_FAST_MODEL=grok-4.6
-DISTILL_PREMIUM_MODEL=grok-4.6
+DISTILL_FAST_MODEL=grok-4.7
+DISTILL_PREMIUM_MODEL=grok-4.7
 DISTILL_ANALYSIS_MODEL=
 DISTILL_SITE_MODEL=
 DISTILL_SYNTHESIS_MODEL=
@@ -513,7 +505,7 @@ DISTILL_ACCORDION_MODEL=
 # openai is a reserved analysis route and is not implemented in this release.
 ANTHROPIC_API_KEY=
 DISTILL_PROVIDER=xai                    # xai | gemini | anthropic | agent | ollama | lmstudio
-DISTILL_MODEL=                          # e.g. gemini-3.7-flash with DISTILL_PROVIDER=gemini
+DISTILL_MODEL=                          # e.g. gemini-3.8-flash with DISTILL_PROVIDER=gemini
 DISTILL_ANALYSIS_PROVIDER=              # per-workload provider override
 DISTILL_SYNTHESIS_PROVIDER=
 DISTILL_ACCORDION_PROVIDER=             # sequential report sections and QA
@@ -522,16 +514,16 @@ DISTILL_ACCORDION_PROVIDER=             # sequential report sections and QA
 Prefer the CLI over hand-editing when changing the default route:
 
 ```bash
-distill provider set gemini gemini-3.7-flash
+distill provider set gemini gemini-3.8-flash
 distill --provider gemini --model gemini-3.5-flash-lite papers "..." --limit 5
 ```
 
 Leave the narrow overrides blank to use the broader `DISTILL_FAST_MODEL` and
-`DISTILL_PREMIUM_MODEL` defaults. Both default to `grok-4.6`. Legacy `XAI_*`
+`DISTILL_PREMIUM_MODEL` defaults. Both default to `grok-4.7`. Legacy `XAI_*`
 model variables and `ACCORDION_SECTION_MODEL` remain migration aliases; a
 matching `DISTILL_*` variable takes precedence.
-Claude Sonnet 5 uses Anthropic adaptive thinking by default. Distill omits
-explicit sampling parameters such as `temperature` for Sonnet 5 compatibility,
+Claude Sonnet 5.5 uses Anthropic adaptive thinking by default. Distill omits
+explicit sampling parameters such as `temperature` for Sonnet 5.5 and Haiku 5,
 while still forwarding `DISTILL_<WORKLOAD>_REASONING_EFFORT` as
 `output_config.effort` when explicitly set.
 Ollama accepts an explicit boolean `DISTILL_<WORKLOAD>_LOCAL_THINK`.

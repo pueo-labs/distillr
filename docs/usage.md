@@ -859,16 +859,16 @@ for the complete flow.
 
 ## Evaluate models (cost × quality)
 
-Models change fast. `grok-4.6` is the current xAI default, while explicit
+Models change fast. `grok-4.7` is the current xAI default, while explicit
 overrides remain supported. `distill eval` measures whether a different cloud
 or local model is good enough for a workload instead of guessing.
 
 ```bash
 # Compare the cloud floor against a local model on all workloads
-distill eval --models grok-4.6,qwen3.5:27b
+distill eval --models grok-4.7,qwen3.5:27b
 
 # One workload, write a report artifact, skip the cost prompt
-distill eval --workload paper --models grok-4.6,qwen3.5:27b --report --yes
+distill eval --workload paper --models grok-4.7,qwen3.5:27b --report --yes
 ```
 
 It runs each model over frozen golden fixtures (3 each for paper, video, and
@@ -891,7 +891,7 @@ Flags:
   reserved OpenAI route (`gpt` / `o1` / `o3`), or an adapter candidate
   (`adapter:`); anything else is treated as a local Ollama model.
 - `--anchor <model>` - the incumbent/reference everything is compared against.
-  `auto` uses `grok-4.6` when an XAI key is configured, otherwise the first
+  `auto` uses `grok-4.7` when an XAI key is configured, otherwise the first
   listed model. The anchor is added to `--models` if absent.
 - `--judge <model>` - model judge used for source-anchored faithfulness and
   pairwise at-par comparisons. `auto` selects a different-family model that is
@@ -1388,9 +1388,9 @@ Show, list, or set the analysis provider without hand-editing `.env`:
 distill provider                              # show active provider + model
 distill provider list                         # routable providers
 distill provider list gemini                  # known Gemini analysis models + prices
-distill provider set gemini gemini-3.7-flash  # persist DISTILL_PROVIDER + DISTILL_MODEL
-distill provider set gemini                   # cloud default model (gemini-3.7-flash)
-distill provider set openrouter x-ai/grok-4.6 # exact author/model slug required
+distill provider set gemini gemini-3.8-flash  # persist DISTILL_PROVIDER + DISTILL_MODEL
+distill provider set gemini                   # cloud default model (gemini-3.8-flash)
+distill provider set openrouter x-ai/grok-4.7 # exact author/model slug required
 distill provider set ollama qwen3.5:27b       # exact local inventory id required
 ```
 
@@ -1401,10 +1401,10 @@ Without a TTY, pass explicit provider (and model for local/agent routes). Use
 For one run only, use global flags (no `.env` write):
 
 ```bash
-distill --provider gemini --model gemini-3.7-flash papers "..." --limit 5
+distill --provider gemini --model gemini-3.8-flash papers "..." --limit 5
 distill -p gemini -m gemini-3.5-flash-lite papers "..." --limit 20
 # known cloud model ids also infer the provider:
-distill -m gemini-3.7-flash papers "..." --limit 5
+distill -m gemini-3.8-flash papers "..." --limit 5
 ```
 
 Aliases: `google` -> `gemini`, `grok` -> `xai`, `claude` -> `anthropic`.
@@ -1434,7 +1434,7 @@ Global output flags go before the command:
 distill --quiet catch-up              # suppress human console output
 distill --verbose doctor              # enable debug logging
 distill --json library                # machine-readable stdout
-distill --provider gemini --model gemini-3.7-flash papers "..." --limit 5
+distill --provider gemini --model gemini-3.8-flash papers "..." --limit 5
 distill -p gemini -m gemini-3.5-flash-lite doctor
 distill --cost-mode paid-ok --provider gemini doctor
 ```

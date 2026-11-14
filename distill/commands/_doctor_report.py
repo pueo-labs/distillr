@@ -338,7 +338,7 @@ def _doctor_local_inference_section(  # noqa: C901
             compared = _suggested_model(ollama_models) or ollama_models[0]
             console.print(
                 "  Compare local vs cloud:  "
-                f"[cyan]distill eval --models grok-4.6,{escape(compared)}[/cyan]"
+                f"[cyan]distill eval --models grok-4.7,{escape(compared)}[/cyan]"
             )
     elif local_model_ready:
         console.print("  Local ready: ingest more, stay current, $0. Time is the budget.")

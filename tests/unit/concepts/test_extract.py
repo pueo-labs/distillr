@@ -20,7 +20,7 @@ from distill.llm import RouterConfig
 class _StubResponse:
     """Minimal duck-type matching LLM_Response for the bits we use."""
 
-    def __init__(self, text: str, model: str = "grok-4.3") -> None:
+    def __init__(self, text: str, model: str = "grok-4.7") -> None:
         self.text = text
         self.model = model
         self.input_tokens = 100
@@ -161,7 +161,7 @@ class TestExtractFromInsight:
         path = _write_insight(tmp_path)
         with patch(
             "distill.concepts.extract.llm_call",
-            return_value=_StubResponse(json.dumps([_valid_row()]), model="grok-4.3"),
+            return_value=_StubResponse(json.dumps([_valid_row()]), model="grok-4.7"),
         ):
             result = extract_from_insight(
                 path,
@@ -170,11 +170,11 @@ class TestExtractFromInsight:
                 artifact_path="papers/x/x_Insights.md",
                 rc=rc,
             )
-        assert result.model == "grok-4.3"
+        assert result.model == "grok-4.7"
         assert result.prompt_id == "concepts.extract.v2"
         assert result.provenance == {
-            "model": "grok-4.3",
-            "model_version": "grok-4.3",
+            "model": "grok-4.7",
+            "model_version": "grok-4.7",
             "prompt_id": "concepts.extract.v2",
         }
 

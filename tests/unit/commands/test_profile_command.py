@@ -892,7 +892,7 @@ def test_profile_refresh_console_preview_and_empty_window(tmp_path, monkeypatch)
 def test_profile_refresh_cloud_route_prints_metered_notice(tmp_path, monkeypatch):
     class _CloudRouter:
         def resolve(self, _workload: str = "") -> tuple[str, str]:
-            return ("xai", "grok-4.6")
+            return ("xai", "grok-4.7")
 
     config = _config(tmp_path)
     monkeypatch.setenv("DISTILL_COST_MODE", "paid-ok")

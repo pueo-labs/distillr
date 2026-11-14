@@ -163,18 +163,15 @@ def _provider_reasoning_effort(
         from distill.llm.openrouter_policy import underlying_model_id
 
         normalized_model = underlying_model_id(normalized_model)
-    if provider_name in {"xai", "openrouter"} and normalized_model.startswith(
-        ("grok-4.6", "grok-4.5", "grok-4.3")
-    ):
+    if provider_name in {"xai", "openrouter"} and normalized_model.startswith("grok-4.7"):
         return resolve_xai_reasoning_effort(config, workload_tag)
     if provider_name in {"anthropic", "openrouter"} and normalized_model.startswith(
         (
             "claude-sonnet-5",
             "claude-opus-5",
-            "claude-opus-4-8",
-            "claude-opus-4-7",
             "claude-fable-5",
             "claude-mythos-5",
+            "claude-haiku-5",
         )
     ):
         return configured_anthropic_effort(workload_tag)

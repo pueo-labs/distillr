@@ -61,7 +61,7 @@ def _mock_provider(
     text: str = "response",
     input_tokens: int = 100,
     output_tokens: int = 50,
-    model: str = "grok-4.3",
+    model: str = "grok-4.7",
 ) -> AsyncMock:
     mock = AsyncMock()
     mock.call.return_value = LLM_Response(
@@ -142,9 +142,9 @@ def test_backward_compatible_env_configuration() -> None:
     env_patch = {
         "XAI_API_KEY": "test-xai-key",
         "GEMINI_API_KEY": "test-gemini-key",
-        "DISTILL_FAST_MODEL": "grok-4.3",
-        "DISTILL_PREMIUM_MODEL": "grok-4.3",
-        "DISTILL_SITE_MODEL": "grok-4.20-0309-reasoning",
+        "DISTILL_FAST_MODEL": "grok-4.7",
+        "DISTILL_PREMIUM_MODEL": "grok-4.7",
+        "DISTILL_SITE_MODEL": "pinned-site-model",
     }
 
     with patch.dict(os.environ, env_patch, clear=True):
@@ -158,11 +158,11 @@ def test_backward_compatible_env_configuration() -> None:
 
     # Site workload should use the per-workload override model
     _, site_model = rc.resolve("site")
-    assert site_model == "grok-4.20-0309-reasoning"
+    assert site_model == "pinned-site-model"
 
     # Analysis should use fast model
     _, analysis_model = rc.resolve("analysis")
-    assert analysis_model == "grok-4.3"
+    assert analysis_model == "grok-4.7"
 
 
 # ---------------------------------------------------------------------------
@@ -354,7 +354,7 @@ def test_end_to_end_idempotency_standard_provider(
         text=response_text,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
-        model="grok-4.3",
+        model="grok-4.7",
     )
 
     # --- Clean call (no failure) ---

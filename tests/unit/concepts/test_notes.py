@@ -85,7 +85,7 @@ def _concept(
         harmful_evidence=EvidenceInterval(*harmful),
         first_seen="2026-04-12T10:00:00Z",
         last_seen="2026-05-15T14:30:00Z",
-        provenance={"model": "grok-4.3", "prompt_id": "concepts.extract.v1"},
+        provenance={"model": "grok-4.7", "prompt_id": "concepts.extract.v1"},
     )
 
 
@@ -221,7 +221,7 @@ class TestRenderPlaybook:
 
     def test_provenance_in_frontmatter(self) -> None:
         out = render_playbook(_concept())
-        assert 'model: "grok-4.3"' in out
+        assert 'model: "grok-4.7"' in out
         assert 'prompt_id: "concepts.extract.v1"' in out
 
 

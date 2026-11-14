@@ -104,7 +104,7 @@ def test_adapter_manifest_ledger_record_supports_new_plan_quota_adapters():
         _manifest(
             adapter="grok",
             adapter_version="grok 0.2.50",
-            model="grok-4.3",
+            model="grok-4.7",
             usage={
                 "input_tokens": 150,
                 "output_tokens": 40,
@@ -137,7 +137,7 @@ def test_adapter_manifest_token_usage_metered_api_auth():
         _manifest(
             auth_class="metered-api",
             adapter="grok",
-            model="grok-4.3",
+            model="grok-4.7",
             policy={
                 "cost_mode": "paid-ok",
                 "blocked_api_key_env": [],

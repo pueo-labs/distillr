@@ -11,8 +11,8 @@ class TestWithModelOverride:
     def test_override_sets_fast_and_premium(self) -> None:
         config = RouterConfig(
             xai_api_key="test",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
         )
         result = config.with_model_override("qwen3.5:27b")
         assert result.fast_model == "qwen3.5:27b"
@@ -21,19 +21,19 @@ class TestWithModelOverride:
     def test_empty_override_returns_same_config(self) -> None:
         config = RouterConfig(
             xai_api_key="test",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
         )
         result = config.with_model_override("")
-        assert result.fast_model == "grok-4.3"
-        assert result.premium_model == "grok-4.3"
+        assert result.fast_model == "grok-4.7"
+        assert result.premium_model == "grok-4.7"
 
     def test_override_preserves_other_fields(self) -> None:
         config = RouterConfig(
             xai_api_key="test-key",
             provider="ollama",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
             ops_dir="/tmp/ops",
         )
         result = config.with_model_override("custom-model:7b")
@@ -46,8 +46,8 @@ class TestWithModelOverride:
     def test_override_affects_resolve(self) -> None:
         config = RouterConfig(
             provider="ollama",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
         )
         result = config.with_model_override("qwen3.5:14b")
         _, model = result.resolve("analysis")
@@ -56,8 +56,8 @@ class TestWithModelOverride:
     def test_override_affects_premium_workloads(self) -> None:
         config = RouterConfig(
             provider="ollama",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
         )
         result = config.with_model_override("qwen3.5:14b")
         _, model = result.resolve("report")  # premium workload

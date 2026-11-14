@@ -72,9 +72,9 @@ PROVIDER_KEY_REQUIREMENTS: dict[str, tuple[str | None, str | None]] = {
 }
 
 DEFAULT_MODEL_FOR_PROVIDER: dict[str, str] = {
-    "xai": "grok-4.6",
+    "xai": "grok-4.7",
     "gemini": "gemini-3.8-flash",
-    "anthropic": "claude-sonnet-5",
+    "anthropic": "claude-sonnet-5-5",
     "openrouter": "deepseek/deepseek-v4.1-flash",
 }
 
@@ -96,14 +96,9 @@ _CATALOG_EXCLUDED_IDS: frozenset[str] = frozenset(
         # Messages API uses hyphenated minor versions.
         "claude-opus-5.5",
         "claude-sonnet-5.5",
-        "claude-fable-5.1",
-        "claude-mythos-5.1",
-        # Compatibility-only alias. Google's current public model id includes
-        # the preview suffix, so do not offer the shorter historical spelling.
-        "gemini-3.1-pro",
-        # Compatibility-only spelling retained for older Distill configs. The
-        # current xAI slug includes the dated 0309 segment.
-        "grok-4.20-non-reasoning",
+        "claude-fable-5.2",
+        "claude-mythos-5.2",
+        "claude-haiku-5.5",
     }
 )
 
@@ -168,13 +163,21 @@ def known_models_for_provider(provider: str) -> list[str]:
             "google/gemini-3.8-flash",
             "anthropic/claude-opus-5.5",
             "anthropic/claude-sonnet-5.5",
+            "anthropic/claude-fable-5.2",
+            "anthropic/claude-haiku-5.5",
+            "google/gemini-4-carbon",
+            "google/gemini-3.5-flash-lite",
+            "openai/gpt-6.1-sol",
+            "openai/gpt-6.1-terra",
+            "openai/gpt-6-luna",
+            "openai/gpt-6-astra",
         ]
         preferred = default_model_for_provider(name)
         models.sort(key=lambda item: (0 if item == preferred else 1, item))
         return models
 
     if name == "gemini":
-        return ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-4-argon"]
+        return ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-4-carbon"]
 
     prefixes = _PROVIDER_MODEL_PREFIXES.get(name)
     if not prefixes:

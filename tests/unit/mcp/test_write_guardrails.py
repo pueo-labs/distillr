@@ -25,7 +25,7 @@ from distill.pipeline.costs import (
 
 def _usage(prompt: int = 100_000, completion: int = 50_000) -> TokenUsage:
     return TokenUsage(
-        prompt_tokens=prompt, completion_tokens=completion, model="grok-4.3", call_type="x"
+        prompt_tokens=prompt, completion_tokens=completion, model="grok-4.7", call_type="x"
     )
 
 

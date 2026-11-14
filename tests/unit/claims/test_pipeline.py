@@ -245,7 +245,7 @@ def test_run_claims_budget_crossing_stops_before_later_insights(
     with (
         patch(
             "distill.claims.extract.llm_call",
-            return_value=_StubResponse("[]", model="grok-4.3"),
+            return_value=_StubResponse("[]", model="grok-4.7"),
         ) as mock_llm,
         pytest.raises(BudgetExceededError),
     ):

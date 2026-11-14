@@ -18,8 +18,8 @@ def test_transcribe_with_openai_requires_api_key(tmp_path: Path) -> None:
 
 
 def test_transcribe_with_openai_rejects_oversized_file(tmp_path: Path) -> None:
-    """OpenAI Whisper-1 has a hard 25 MB upload cap. Surface that locally
-    instead of waiting for an HTTP 413 from the API."""
+    """OpenAI file transcription has a hard 25 MB upload cap. Surface that
+    locally instead of waiting for an HTTP 413 from the API."""
     media = tmp_path / "huge.mp4"
     media.write_bytes(b"x" * (25 * 1024 * 1024 + 1))
     with pytest.raises(ValueError, match="25 MB"):
@@ -39,8 +39,8 @@ def test_transcribe_with_openai_calls_audio_transcriptions(tmp_path: Path) -> No
     assert text == "transcribed text"
     openai_ctor.assert_called_once_with(api_key="sk-test", max_retries=0)
     create_call = mock_client.audio.transcriptions.create.call_args
-    assert create_call.kwargs["model"] == "whisper-1"
-    assert create_call.kwargs["response_format"] == "text"
+    assert create_call.kwargs["model"] == "gpt-transcribe"
+    assert "response_format" not in create_call.kwargs
     assert "prompt" not in create_call.kwargs  # no hint passed
 
 

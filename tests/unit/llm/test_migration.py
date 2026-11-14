@@ -24,13 +24,9 @@ from hypothesis import strategies as st
 from distill.config import DistillConfig
 from distill.doctor.checks import check_retired_models
 from distill.llm.cost import PRICING, compute_cost, get_pricing
+from distill.llm.model_policy import RETIRED_MODELS, RETIREMENT_DATE
 from distill.llm.reasoning import resolve_xai_reasoning_effort
-from distill.llm.router import (
-    RETIRED_MODELS,
-    RETIREMENT_DATE,
-    WORKLOAD_TAGS,
-    RouterConfig,
-)
+from distill.llm.router import WORKLOAD_TAGS, RouterConfig
 
 # =============================================================================
 # Property 14: No default model references a retired model
@@ -72,7 +68,7 @@ def test_retired_model_fallback_with_warning(
     """
     caplog.clear()
     config = RouterConfig(fast_model=retired_model)
-    with caplog.at_level(logging.WARNING, logger="distill.llm.router"):
+    with caplog.at_level(logging.WARNING, logger="distill.llm.model_policy"):
         _, model_id = config.resolve("analysis")
 
     expected_replacement = RETIRED_MODELS[retired_model]
@@ -92,26 +88,19 @@ def test_retired_model_fallback_with_warning(
 
 @settings(max_examples=100)
 @given(retired_model=st.sampled_from(sorted(RETIRED_MODELS.keys())))
-def test_retired_models_retain_cost_entries(retired_model: str) -> None:
-    """Property 15: Retired models retain cost table entries.
+def test_retired_models_are_not_separate_cost_tiers(retired_model: str) -> None:
+    """Retired ids are not priced as their old tiers.
 
-    For any model in RETIRED_MODELS, verify cost table has pricing entry
-    that is an exact match (not a fallback to default).
-
-    **Validates: Requirements 13.3**
+    Text replacements are the current grok-4.7 rate. The image replacement is
+    refused as media and is not a text cost tier.
     """
-    pricing = get_pricing(retired_model)
-    # Verify it's an exact match in PRICING (not a fallback)
-    assert retired_model in PRICING, (
-        f"Retired model '{retired_model}' should have an exact entry in PRICING"
-    )
-    # Verify it has either input/output keys or per_query key
-    has_token_pricing = "input" in pricing and "output" in pricing
-    has_query_pricing = "per_query" in pricing
-    assert has_token_pricing or has_query_pricing, (
-        f"Pricing for '{retired_model}' must have 'input'/'output' or 'per_query' keys, "
-        f"got: {pricing}"
-    )
+    assert retired_model not in PRICING
+    replacement = RETIRED_MODELS[retired_model]
+    if replacement == "grok-4.7":
+        assert get_pricing(replacement)["input"] == 2.00
+        assert get_pricing(replacement)["output"] == 6.00
+    else:
+        assert replacement == "grok-imagine-image-2.0"
 
 
 # =============================================================================
@@ -197,7 +186,7 @@ class TestDeprecationWarningAndFallback:
         for retired_model in RETIRED_MODELS:
             caplog.clear()
             config = RouterConfig(fast_model=retired_model)
-            with caplog.at_level(logging.WARNING, logger="distill.llm.router"):
+            with caplog.at_level(logging.WARNING, logger="distill.llm.model_policy"):
                 config.resolve("analysis")
             assert any("retired" in r.message.lower() for r in caplog.records), (
                 f"No deprecation warning for retired model '{retired_model}'"
@@ -214,11 +203,7 @@ class TestDeprecationWarningAndFallback:
 
     def test_non_retired_models_pass_through(self) -> None:
         """Non-retired models pass through unchanged."""
-        non_retired = [
-            "grok-4.3",
-            "grok-4.20-0309-non-reasoning",
-            "grok-imagine-image",
-        ]
+        non_retired = ["grok-4.7"]
         for model in non_retired:
             config = RouterConfig(fast_model=model)
             _, model_id = config.resolve("analysis")
@@ -281,15 +266,15 @@ class TestReasoningEffortDefaultsAndCostInvariance:
         compute_cost doesn't take effort as a parameter, so cost is purely
         based on model and token counts.
         """
-        model = "grok-4.3"
+        model = "grok-4.7"
         input_tokens = 1000
         output_tokens = 500
 
         cost = compute_cost(model, input_tokens, output_tokens)
 
         # Verify cost is the same value regardless of what reasoning effort
-        # would be configured — compute_cost has no effort parameter
-        expected = (input_tokens * 1.25 + output_tokens * 2.50) / 1_000_000
+        # would be configured. compute_cost has no effort parameter.
+        expected = (input_tokens * 2.00 + output_tokens * 6.00) / 1_000_000
         assert cost == pytest.approx(expected), f"Cost should be {expected}, got {cost}"
 
         # Verify calling multiple times gives same result (no hidden state)

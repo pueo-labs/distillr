@@ -24,9 +24,9 @@ from distill.eval.route_pool import RouteCandidate, select_route_pool
 
 def _eval_gate(*, passed: bool = True) -> EvalGateDecision:
     return EvalGateDecision(
-        model="adapter:grok-4.3",
+        model="adapter:grok-4.7",
         workload="analysis",
-        anchor="grok-4.3",
+        anchor="grok-4.7",
         passed=passed,
         blocked_reasons=() if passed else ("pairwise judge did not produce a signal",),
         rows=3 if passed else 0,
@@ -38,7 +38,7 @@ def _eval_gate(*, passed: bool = True) -> EvalGateDecision:
 def _graduation(
     *,
     adapter: str = "grok",
-    model: str = "adapter:grok-4.3",
+    model: str = "adapter:grok-4.7",
     workload: str = "analysis",
     eligible: bool = True,
 ) -> AdapterGraduationDecision:
@@ -58,7 +58,7 @@ def _graduation(
 def test_no_metered_selects_local_and_blocks_metered_api() -> None:
     selection = select_route_pool(
         [
-            RouteCandidate(provider="xai", model="grok-4.3", workload="analysis"),
+            RouteCandidate(provider="xai", model="grok-4.7", workload="analysis"),
             RouteCandidate(provider="ollama", model="qwen3.5:27b", workload="analysis"),
         ],
         cost_mode="no-metered",
@@ -74,7 +74,7 @@ def test_no_metered_selects_local_and_blocks_metered_api() -> None:
 
 def test_included_plan_route_requires_graduation_even_in_auto_mode() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
     )
@@ -88,8 +88,8 @@ def test_included_plan_route_requires_graduation_even_in_auto_mode() -> None:
 def test_graduated_included_plan_route_enters_pool_before_metered_api() -> None:
     selection = select_route_pool(
         [
-            RouteCandidate(provider="xai", model="grok-4.3", workload="analysis"),
-            RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis"),
+            RouteCandidate(provider="xai", model="grok-4.7", workload="analysis"),
+            RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis"),
         ],
         cost_mode="auto",
         workload="analysis",
@@ -105,7 +105,7 @@ def test_graduated_included_plan_route_enters_pool_before_metered_api() -> None:
 
 def test_ineligible_graduation_blocks_adapter_route_with_reasons() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
         graduations=[_graduation(eligible=False)],
@@ -167,14 +167,14 @@ def test_route_pool_selection_serializes_for_loop_consumers() -> None:
 
 def test_route_availability_quota_stop_evicts_graduated_adapter() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
         graduations=[_graduation()],
         availability_signals=[
             RouteAvailabilitySignal(
                 provider="grok",
-                model="adapter:grok-4.3",
+                model="adapter:grok-4.7",
                 workload="analysis",
                 checked_at=1_000,
                 quota_stop=RouteQuotaStop(
@@ -223,7 +223,7 @@ def test_route_availability_binding_window_blocks_even_when_short_window_is_gree
 
 def test_require_live_availability_blocks_included_plan_without_signal() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
         graduations=[_graduation()],
@@ -318,7 +318,7 @@ def test_local_doctor_provider_signal_does_not_prove_model_route() -> None:
 
 def test_stale_availability_signal_does_not_prove_route_live() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
         graduations=[_graduation()],
@@ -343,7 +343,7 @@ def test_stale_availability_signal_does_not_prove_route_live() -> None:
 def test_same_class_route_selection_prefers_higher_headroom() -> None:
     selection = select_route_pool(
         [
-            RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis"),
+            RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis"),
             RouteCandidate(provider="claude", model="adapter:opus", workload="analysis"),
         ],
         cost_mode="auto",
@@ -373,7 +373,7 @@ def test_same_class_route_selection_prefers_higher_headroom() -> None:
 
 def test_rolled_over_window_is_treated_as_fresh() -> None:
     selection = select_route_pool(
-        [RouteCandidate(provider="grok", model="adapter:grok-4.3", workload="analysis")],
+        [RouteCandidate(provider="grok", model="adapter:grok-4.7", workload="analysis")],
         cost_mode="auto",
         workload="analysis",
         graduations=[_graduation()],
@@ -452,7 +452,7 @@ def test_adapter_manifest_quota_stop_builds_availability_signal() -> None:
             "adapter_version": "grok 0.2.50",
             "auth_class": "included-plan",
             "command_class": "read-only",
-            "model": "grok-4.3",
+            "model": "grok-4.7",
             "prompt_hash": "sha256:prompt",
             "source_hash": "sha256:source",
             "elapsed_ms": 100,
@@ -483,7 +483,7 @@ def test_adapter_manifest_quota_stop_builds_availability_signal() -> None:
     signal = route_availability_signal_from_manifest(manifest, now=2_000, workload="analysis")
 
     assert signal.provider == "grok"
-    assert signal.model == "grok-4.3"
+    assert signal.model == "grok-4.7"
     assert signal.evidence_source == "adapter-result-manifest"
     assert signal.quota_stop is not None
     assert signal.quota_stop.blocked_until(2_000) == 2_120

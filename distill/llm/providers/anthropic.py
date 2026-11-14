@@ -25,16 +25,14 @@ logger = logging.getLogger(__name__)
 ANTHROPIC_MESSAGES_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_API_VERSION = "2023-06-01"
 
-# Models that reject custom sampling params (temperature/top_p/top_k -> HTTP 400):
-# Sonnet 5, Opus 4.7/4.8, and the Fable/Mythos 5 tier all removed them. Opus 4.6
-# and older still accept sampling, so a plain prefix list keeps the boundary exact.
+# Current Claude models reject custom sampling params (temperature/top_p/top_k).
+# The prefixes match Sonnet 5.5, Opus 5.5, Fable 5.2, Mythos 5.2, and Haiku 5.5.
 _NO_CUSTOM_SAMPLING_PREFIXES: tuple[str, ...] = (
     "claude-sonnet-5",
     "claude-opus-5",
-    "claude-opus-4-7",
-    "claude-opus-4-8",
     "claude-fable-5",
     "claude-mythos-5",
+    "claude-haiku-5",
 )
 
 
@@ -199,6 +197,6 @@ def _content_block_text(block: object) -> str:
 def _supports_custom_sampling(model: str) -> bool:
     # Normalize before matching: the router accepts a model id in any case (and
     # ``infer_cloud_provider_for_model`` case-folds when routing), so a literal
-    # ``startswith`` would let "Claude-Opus-4-8" skip the guard and forward a
+    # ``startswith`` would let "Claude-Opus-5-5" skip the guard and forward a
     # sampling parameter the API rejects with HTTP 400.
     return not model.strip().lower().startswith(_NO_CUSTOM_SAMPLING_PREFIXES)

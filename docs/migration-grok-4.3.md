@@ -3,28 +3,28 @@
 xAI retired several models from the API effective **May 15, 2026 at 12:00pm
 PT**. At retirement, xAI redirected those slugs to `grok-4.3` or the named
 non-reasoning replacement and billed at the redirect target's rates. Current
-Distill releases now substitute retired reasoning slugs to the `grok-4.6`
-default before dispatch. See the [Grok 4.6 default migration](migration-grok-4.6.md)
+Distill releases now substitute retired reasoning slugs to the `grok-4.7`
+default before dispatch. See the [Grok 4.7 default migration](migration-grok-4.7.md)
 for the current registry.
 
 ## Retired Models
 
 | Retired Model | Replacement | Use Case |
 |---|---|---|
-| `grok-4-1-fast-reasoning` | `grok-4.6` | Reasoning workloads |
-| `grok-4-1-fast-non-reasoning` | `grok-4.20-0309-non-reasoning` | Non-reasoning workloads |
-| `grok-4-fast-reasoning` | `grok-4.6` | Reasoning workloads |
-| `grok-4-fast-non-reasoning` | `grok-4.20-0309-non-reasoning` | Non-reasoning workloads |
-| `grok-4-0709` | `grok-4.6` | Reasoning workloads |
-| `grok-code-fast-1` | `grok-4.6` | Code generation |
-| `grok-3` | `grok-4.6` | General reasoning |
-| `grok-imagine-image-pro` | `grok-imagine-image` | Image generation |
+| `grok-4-1-fast-reasoning` | `grok-4.7` | Reasoning workloads |
+| `grok-4-1-fast-non-reasoning` | `grok-4.7` | Non-reasoning workloads |
+| `grok-4-fast-reasoning` | `grok-4.7` | Reasoning workloads |
+| `grok-4-fast-non-reasoning` | `grok-4.7` | Non-reasoning workloads |
+| `grok-4-0709` | `grok-4.7` | Reasoning workloads |
+| `grok-code-fast-1` | `grok-4.7` | Code generation |
+| `grok-3` | `grok-4.7` | General reasoning |
+| `grok-imagine-image-pro` | `grok-imagine-image-2.0` | Image generation |
 
 ## What distillr does automatically
 
 Starting in **0.5.0**, distillr handles the transition gracefully:
 
-1. **Default model policy updated.** All xAI default model references now point to `grok-4.6`. No action needed if you use defaults.
+1. **Default model policy updated.** All xAI default model references now point to `grok-4.7`. No action needed if you use defaults.
 2. **Automatic fallback.** If your `.env` still references a retired model, distillr logs a deprecation warning and automatically substitutes the recommended replacement. Your runs will not break.
 3. **`distill doctor` warns you.** Running `distill doctor` will flag any retired models in your configuration with the retirement date and recommended replacement.
 
@@ -32,7 +32,7 @@ Starting in **0.5.0**, distillr handles the transition gracefully:
 
 ### If you use default settings (most users)
 
-Nothing. The defaults are already updated to `grok-4.6`.
+Nothing. The defaults are already updated to `grok-4.7`.
 
 ### If you have explicit model overrides in `.env`
 
@@ -56,8 +56,8 @@ XAI_FAST_MODEL=grok-4-1-fast-reasoning
 ACCORDION_SECTION_MODEL=grok-4-1-fast-reasoning
 
 # After
-DISTILL_FAST_MODEL=grok-4.6
-DISTILL_ACCORDION_MODEL=grok-4.6
+DISTILL_FAST_MODEL=grok-4.7
+DISTILL_ACCORDION_MODEL=grok-4.7
 ```
 
 The older variable names remain accepted as migration aliases. A matching
@@ -73,7 +73,7 @@ If you have retired models configured, you'll see:
 
 ```
 WARNING: xai_fast_model uses retired model 'grok-4-1-fast-reasoning'
-   (retired May 15, 2026); replace with 'grok-4.6'
+   (retired May 15, 2026); replace with 'grok-4.7'
 ```
 
 ## Grok 4.3 Highlights
@@ -117,7 +117,7 @@ Invalid values are silently ignored and the tier default applies.
 | `grok-3` (retired) | $3.00 | $9.00 |
 
 `grok-4.3` remains available as an explicit override. The current default is
-`grok-4.6` at $2/$6 per 1M short-context tokens with a 500K context window.
+`grok-4.7` at $2/$6 per 1M short-context tokens with a 500K context window.
 Requests at or above 200K prompt tokens use $4/$12 long-context rates. Use `distill eval`
 on representative fixtures instead of inferring quality from the model number.
 
@@ -125,7 +125,7 @@ on representative fixtures instead of inferring quality from the model number.
 
 For a typical 20-paper research run:
 - **Before** (grok-4-1-fast-reasoning at $0.20/$0.50): ~$0.15-$0.30
-- **Current default** (`grok-4.6` at short-context $2/$6): run the current command estimate;
+- **Current default** (`grok-4.7` at short-context $2/$6): run the current command estimate;
   the result depends on the input/output token mix and calibration history.
 
 The current default has a 500K context window. A 100K-character paper is

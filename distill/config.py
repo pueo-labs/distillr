@@ -160,14 +160,14 @@ class DistillConfig(BaseSettings):
     scribe_path: str = ""
     distill_output_dir: Path = _default_library_dir()
     distill_default_months: int = 1
-    xai_fast_model: str = "grok-4.6"
-    xai_premium_model: str = "grok-4.6"
+    xai_fast_model: str = "grok-4.7"
+    xai_premium_model: str = "grok-4.7"
     xai_analysis_model: str = ""
     xai_rerank_model: str = ""
     xai_synthesis_model: str = ""
-    xai_site_model: str = "grok-4.6"
+    xai_site_model: str = "grok-4.7"
     accordion_section_delay: int = 3
-    accordion_section_model: str = "grok-4.6"
+    accordion_section_model: str = "grok-4.7"
     # Write-time claim-grounding hook (DISTILL_VERIFY): "warn" flags numeric
     # claims the source receipt doesn't support and writes anyway; "strict"
     # refuses the write; "off" skips the check.

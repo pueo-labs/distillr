@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Model defaults
+
+- xAI analysis, site, accordion, eval, and cost-fallback defaults now use
+  `grok-4.7`. Retired and superseded text slugs substitute to `grok-4.7`.
+  Reasoning effort is sent for `grok-4.7`. Older xAI text prices are no
+  longer separate cost tiers.
+- The optional Anthropic default and doctor probe now use `claude-sonnet-5-5`.
+  The live Anthropic registry is Fable 5.2, Mythos 5.2, Opus 5.5, Sonnet 5.5,
+  and Haiku 5.5. Sampling parameters stay omitted for that family.
+- Gemini Pro selection is `gemini-4-carbon`. Flash stays `gemini-3.8-flash`.
+  Lite stays `gemini-3.5-flash-lite`.
+- The OpenAI key probe now uses `gpt-6-luna` with `max_completion_tokens` and
+  `reasoning_effort` set to `none`. Reserved OpenAI prices are `gpt-6-astra`,
+  `gpt-6.1-sol`, `gpt-6.1-terra`, and `gpt-6-luna`.
+- The cloud transcription fallback now uses `gpt-transcribe` at $0.27 per hour
+  on the existing audio transcription endpoint.
+- Editorial writer and refinement defaults are `anthropic/claude-sonnet-5.5`
+  and `openai/gpt-6.1-sol`.
+
 ### Dependency security
 
 - Require pyasn1 0.6.5 or newer in package metadata and the lockfile so fresh

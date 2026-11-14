@@ -35,7 +35,7 @@ def _response(text=None, *, finish_reason=""):
         text=_body("Reconciled result.") if text is None else text,
         input_tokens=17,
         output_tokens=2,
-        model="grok-4.6",
+        model="grok-4.7",
         finish_reason=finish_reason,
     )
 
@@ -78,7 +78,7 @@ def test_one_bounded_review_replaces_the_whole_provisional_insight_and_accounts_
     assert transport.call_args.kwargs["workload_tag"] == "analysis"
     assert transport.call_args.kwargs["usage_tracker"] is tracker
     assert reviewed.passes[-1].chunk_indices == (1,)
-    assert reviewed.passes[-1].model == "grok-4.6"
+    assert reviewed.passes[-1].model == "grok-4.7"
     assert merge_paper_pass_results(reviewed.passes, body="") == revised + "\n"
     assert len(tracker.entries) == 1
     assert tracker.entries[0].prompt_tokens == 17

@@ -383,7 +383,7 @@ class TestTopLevelExperience:
 
     def test_root_model_override_reads_context_object(self):
         assert (
-            _root.get_model_override(_RootCallbackContext(obj={"model": "grok-4.3"})) == "grok-4.3"
+            _root.get_model_override(_RootCallbackContext(obj={"model": "grok-4.7"})) == "grok-4.7"
         )
         assert _root.get_model_override(_RootCallbackContext(obj={})) == ""
         assert _root.get_model_override(None) == ""
@@ -1706,7 +1706,7 @@ class TestExportOpenCostsAndStatus:
                     "timestamp": "2026-03-12T12:01:00",
                     "workload_tag": "report",
                     "call_type": "qa",
-                    "model": "grok-4.3",
+                    "model": "grok-4.7",
                     "provider_name": "xai",
                     "provider_type": "cloud",
                     "input_tokens": 2400,

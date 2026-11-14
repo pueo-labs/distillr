@@ -133,7 +133,7 @@ def test_strict_models_and_routes():
     with pytest.raises(ValidationError):
         Perspective(topics=["AI"], unknown=True)
     with pytest.raises(ValueError):
-        EditorialRoutes(refinement_model="anthropic/claude-sonnet-5")
+        EditorialRoutes(refinement_model="anthropic/claude-sonnet-5.5")
     with pytest.raises(ValueError):
         EditorialRoutes(writer_model="openrouter/auto")
     assert EditorialSources(urls=[URL, URL]).urls == [URL]
@@ -200,7 +200,7 @@ def test_tracker_reserves_before_contact_and_accounts_failures(tmp_path, outcome
     attempt = LLMUsageAttempt(
         input_tokens=1000,
         output_tokens=1000,
-        model="anthropic/claude-sonnet-5",
+        model="anthropic/claude-sonnet-5.5",
         provider_name="openrouter",
         provider_type="cloud",
         usage_source="reported",
@@ -232,7 +232,7 @@ def test_tracker_run_limit_refuses_before_weekly_reservation(tmp_path):
     attempt = LLMUsageAttempt(
         input_tokens=1000,
         output_tokens=1000,
-        model="anthropic/claude-sonnet-5",
+        model="anthropic/claude-sonnet-5.5",
         provider_name="openrouter",
         provider_type="cloud",
         usage_source="reported",

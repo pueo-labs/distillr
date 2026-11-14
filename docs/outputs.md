@@ -302,7 +302,7 @@ url: https://arxiv.org/abs/2604.11544v1
 doi: 10.5555/example-tkg
 tags: ["distill/tkg", "source/arxiv"]
 synthesis_scope: "single-paper"
-analyzed_by: grok-4.6
+analyzed_by: grok-4.7
 source_mode: full_pdf
 ---
 

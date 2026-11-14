@@ -84,7 +84,7 @@ def test_web_routes_render_dashboard_topic_channel_video_and_watchlist(config):
                 "timestamp": "2026-04-20T12:01:00",
                 "workload_tag": "report",
                 "call_type": "qa",
-                "model": "grok-4.3",
+                "model": "grok-4.7",
                 "provider_name": "xai",
                 "provider_type": "cloud",
                 "input_tokens": 2000,
