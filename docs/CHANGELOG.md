@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Dependency security
 
+- Require OpenTelemetry API 1.45.2 or newer in package metadata and in the lockfile for the trace-context parsing fix.
+
 - Require pyasn1 0.6.5 or newer in package metadata and the lockfile so fresh
   installations and upgrades use the patched ASN.1 decoder in Google authentication.
 - Require pypdf 6.21.4 or newer to address crafted-PDF parsing resource exhaustion

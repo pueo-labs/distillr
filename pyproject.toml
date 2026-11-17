@@ -76,7 +76,7 @@ dependencies = [
     "pyasn1>=0.6.5",
     # mcp 2.3.0 depends on this API with an open floor. 1.45.1 is the patched
     # release for CVE-2026-114603. Distillr does not configure an exporter.
-    "opentelemetry-api>=1.45.1",
+    "opentelemetry-api>=1.45.2",
     "psutil>=6.1",
     "httpx>=0.28.0",
     "defusedxml>=0.7.1",
