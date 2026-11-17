@@ -89,12 +89,12 @@ def test_remaining_audit_floors_are_in_metadata_and_the_lock() -> None:
     extra = pyproject["project"]["optional-dependencies"]["entailment"]
 
     assert "pypdf>=6.21.4" in pyproject["project"]["dependencies"]
-    assert "opentelemetry-api>=1.45.1" in pyproject["project"]["dependencies"]
+    assert "opentelemetry-api>=1.45.2" in pyproject["project"]["dependencies"]
     assert "filelock>=4.2.1,<5" in extra
     assert "setuptools>=84.1.0" in extra
     assert "virtualenv>=21.14.9" in pyproject["dependency-groups"]["dev"]
     assert _version_at_least(_locked_version("pypdf"), (6, 21, 4))
-    assert _version_at_least(_locked_version("opentelemetry-api"), (1, 45, 1))
+    assert _version_at_least(_locked_version("opentelemetry-api"), (1, 45, 2))
     assert _version_at_least(_locked_version("filelock"), (4, 2, 1))
     assert _version_at_least(_locked_version("setuptools"), (84, 1, 0))
     assert _version_at_least(_locked_version("virtualenv"), (21, 14, 9))
