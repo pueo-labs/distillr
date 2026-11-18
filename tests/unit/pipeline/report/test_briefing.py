@@ -9,7 +9,7 @@ from distill.pipeline.costs import CostTracker
 from distill.pipeline.report.briefing import generate_topic_brief
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(text=text, input_tokens=120, output_tokens=80, model=model)
 
@@ -63,7 +63,7 @@ def test_generate_topic_brief_uses_video_metadata_in_source_link(tmp_path):
 
     def _call(config, workload_tag, prompt, **kwargs):
         captured["prompt"] = prompt
-        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.3")
+        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.7")
 
     with patch("distill.pipeline.report.briefing.llm_call", _call):
         result = generate_topic_brief("fabric", config)
@@ -98,7 +98,7 @@ def test_generate_topic_brief_uses_corpus_synthesis_fallback(tmp_path):
 
     def _call(config, workload_tag, prompt, **kwargs):
         captured["prompt"] = prompt
-        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.3")
+        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.7")
 
     with patch("distill.pipeline.report.briefing.llm_call", _call):
         result = generate_topic_brief("fabric", config)
@@ -119,7 +119,7 @@ def test_generate_topic_brief_uses_direct_local_insight(tmp_path):
 
     def _call(config, workload_tag, prompt, **kwargs):
         captured["prompt"] = prompt
-        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.3")
+        return LLM_Response(text="# Brief", input_tokens=120, output_tokens=80, model="grok-4.7")
 
     with patch("distill.pipeline.report.briefing.llm_call", _call):
         result = generate_topic_brief("fabric", config)

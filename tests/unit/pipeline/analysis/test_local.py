@@ -17,7 +17,7 @@ def _cfg(tmp_path: Path) -> DistillConfig:
     return DistillConfig(distill_output_dir=tmp_path / "lib")
 
 
-def _fake_llm(text: str = "INSIGHTS BODY", model: str = "grok-4.3"):
+def _fake_llm(text: str = "INSIGHTS BODY", model: str = "grok-4.7"):
     def _call(*_args, **_kwargs):
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 
@@ -72,7 +72,7 @@ def test_pdf_routes_to_paper_prompt(tmp_path: Path):
 
     def _capture(*args, **kwargs):
         seen["prompt"] = kwargs.get("prompt", args[2] if len(args) > 2 else "")
-        return LLM_Response(text="x", input_tokens=1, output_tokens=1, model="grok-4.3")
+        return LLM_Response(text="x", input_tokens=1, output_tokens=1, model="grok-4.7")
 
     doc = tmp_path / "paper.md"  # use md kind -> site prompt path
     doc.write_text("# Paper\n\nAbstract and method.", encoding="utf-8")

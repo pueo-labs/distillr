@@ -10,15 +10,15 @@ from distill.eval._models import is_local, provider_for_model
 @pytest.mark.parametrize(
     ("model", "provider"),
     [
-        ("grok-4.3", "xai"),
+        ("grok-4.7", "xai"),
         ("GROK-4.3", "xai"),
         ("gemini-3-pro", "gemini"),
         ("deep-research-pro", "gemini"),
-        ("claude-sonnet-5", "anthropic"),
+        ("claude-sonnet-5-5", "anthropic"),
         ("gpt-5.1", "openai"),
         ("o1-preview", "openai"),
         ("o3-mini", "openai"),
-        ("adapter:grok-4.3", "adapter"),
+        ("adapter:grok-4.7", "adapter"),
         ("qwen3.5:27b", "ollama"),
     ],
 )
@@ -30,11 +30,11 @@ def test_provider_for_model_prefixes(model: str, provider: str) -> None:
     ("model", "expected"),
     [
         ("qwen3.5:27b", True),
-        ("grok-4.3", False),
+        ("grok-4.7", False),
         ("gemini-3-pro", False),
-        ("claude-sonnet-5", False),
+        ("claude-sonnet-5-5", False),
         ("gpt-5.1", False),
-        ("adapter:grok-4.3", False),
+        ("adapter:grok-4.7", False),
     ],
 )
 def test_is_local_uses_inferred_provider(model: str, expected: bool) -> None:

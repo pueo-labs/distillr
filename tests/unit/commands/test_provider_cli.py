@@ -48,7 +48,7 @@ def test_provider_show_json(isolated_cwd: Path) -> None:
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
     assert payload["data"]["provider"] == "xai"
-    assert payload["data"]["model"] == "grok-4.6"
+    assert payload["data"]["model"] == "grok-4.7"
     assert payload["data"]["pricing_audit"]["verified_on"] == "2026-10-06"
     assert payload["data"]["pricing_audit"]["source"] == "https://docs.x.ai/developers/models"
 
@@ -62,7 +62,7 @@ def test_provider_list_gemini_json(isolated_cwd: Path) -> None:
     model_ids = [row["id"] for row in payload["data"]["models"]]
     assert model_ids[0] == "gemini-3.8-flash"
     assert "gemini-3.8-flash" in model_ids
-    assert "gemini-4-argon" in model_ids
+    assert "gemini-4-carbon" in model_ids
     assert "gemini-3.5-flash-lite" in model_ids
     assert payload["data"]["pricing_audit"]["verified_on"] == "2026-10-17"
     assert payload["data"]["pricing_audit"]["source"].startswith("https://ai.google.dev/")
@@ -71,19 +71,19 @@ def test_provider_list_gemini_json(isolated_cwd: Path) -> None:
 def test_provider_set_persists_env(isolated_cwd: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     result = runner.invoke(
         cli.app,
-        ["--json", "provider", "set", "gemini", "gemini-3.6-flash"],
+        ["--json", "provider", "set", "gemini", "gemini-3.8-flash"],
     )
     assert result.exit_code == 0, result.output
     payload = json.loads(result.stdout)
     assert payload["status"] == "ok"
     assert payload["data"]["provider"] == "gemini"
-    assert payload["data"]["model"] == "gemini-3.6-flash"
+    assert payload["data"]["model"] == "gemini-3.8-flash"
 
     env_text = (isolated_cwd / ".env").read_text(encoding="utf-8")
     assert "DISTILL_PROVIDER=gemini" in env_text
-    assert "DISTILL_MODEL=gemini-3.6-flash" in env_text
+    assert "DISTILL_MODEL=gemini-3.8-flash" in env_text
     assert os.environ["DISTILL_PROVIDER"] == "gemini"
-    assert os.environ["DISTILL_MODEL"] == "gemini-3.6-flash"
+    assert os.environ["DISTILL_MODEL"] == "gemini-3.8-flash"
 
 
 def test_provider_set_default_model_with_yes(
@@ -114,7 +114,7 @@ def test_provider_list_openrouter_human_table(isolated_cwd: Path) -> None:
 
 
 def test_provider_set_rejects_cross_family(isolated_cwd: Path) -> None:
-    result = runner.invoke(cli.app, ["provider", "set", "xai", "gemini-3.6-flash"])
+    result = runner.invoke(cli.app, ["provider", "set", "xai", "gemini-3.8-flash"])
     assert result.exit_code == 2
     assert "belongs to provider" in result.output
 
@@ -186,13 +186,13 @@ def test_global_model_flag_infers_cloud_provider(
         quiet=False,
         verbose=False,
         json_output=False,
-        model="gemini-3.6-flash",
+        model="gemini-3.8-flash",
         provider="",
         cost_mode="",
         version=False,
     )
     assert os.environ["DISTILL_PROVIDER"] == "gemini"
-    assert os.environ["DISTILL_MODEL"] == "gemini-3.6-flash"
+    assert os.environ["DISTILL_MODEL"] == "gemini-3.8-flash"
 
 
 def test_apply_output_mode_rejects_unknown_provider() -> None:
@@ -232,7 +232,7 @@ def test_get_provider_override_reads_context() -> None:
 def test_provider_root_no_subcommand_shows_human_route(isolated_cwd: Path) -> None:
     result = runner.invoke(cli.app, ["provider"])
     assert result.exit_code == 0, result.output
-    assert "grok-4.6" in result.output
+    assert "grok-4.7" in result.output
     assert "Provider" in result.output
     assert "Pricing" in result.output
     assert "Verified" in result.output
@@ -292,7 +292,7 @@ def test_provider_list_all_json(isolated_cwd: Path) -> None:
 
 
 def test_provider_set_human_output_with_price(isolated_cwd: Path) -> None:
-    result = runner.invoke(cli.app, ["provider", "set", "gemini", "gemini-3.6-flash"])
+    result = runner.invoke(cli.app, ["provider", "set", "gemini", "gemini-3.8-flash"])
     assert result.exit_code == 0, result.output
     assert "Set" in result.output
     assert "DISTILL_PROVIDER=gemini" in result.output
@@ -324,7 +324,7 @@ def test_provider_set_env_file_error_human(
         raise OSError("disk full")
 
     monkeypatch.setattr(_provider, "set_env_var", _boom)
-    result = runner.invoke(cli.app, ["provider", "set", "gemini", "gemini-3.6-flash"])
+    result = runner.invoke(cli.app, ["provider", "set", "gemini", "gemini-3.8-flash"])
     assert result.exit_code == 1
     assert "Could not update" in result.output
 
@@ -336,7 +336,7 @@ def test_provider_set_env_file_error_json(
         raise OSError("disk full")
 
     monkeypatch.setattr(_provider, "set_env_var", _boom)
-    result = runner.invoke(cli.app, ["--json", "provider", "set", "gemini", "gemini-3.6-flash"])
+    result = runner.invoke(cli.app, ["--json", "provider", "set", "gemini", "gemini-3.8-flash"])
     assert result.exit_code == 1
     payload = json.loads(result.stdout)
     assert payload["status"] == "error"
@@ -405,21 +405,21 @@ def test_prompt_model_digit_selects_from_catalog(monkeypatch: pytest.MonkeyPatch
 def test_prompt_model_empty_returns_default(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(_provider, "tty_prompt", _scripted_prompt([""]))
     assert (
-        _provider._prompt_model("gemini", default="gemini-3.6-flash")  # pyright: ignore[reportPrivateUsage]
-        == "gemini-3.6-flash"
+        _provider._prompt_model("gemini", default="gemini-3.8-flash")  # pyright: ignore[reportPrivateUsage]
+        == "gemini-3.8-flash"
     )
 
 
 def test_prompt_model_out_of_range_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(_provider, "tty_prompt", _scripted_prompt(["99"]))
     with pytest.raises(ValueError, match="out of range"):
-        _provider._prompt_model("gemini", default="gemini-3.6-flash")  # pyright: ignore[reportPrivateUsage]
+        _provider._prompt_model("gemini", default="gemini-3.8-flash")  # pyright: ignore[reportPrivateUsage]
 
 
 def test_prompt_model_freeform_id_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(_provider, "tty_prompt", _scripted_prompt(["gemini-custom-id"]))
     assert (
-        _provider._prompt_model("gemini", default="gemini-3.6-flash")  # pyright: ignore[reportPrivateUsage]
+        _provider._prompt_model("gemini", default="gemini-3.8-flash")  # pyright: ignore[reportPrivateUsage]
         == "gemini-custom-id"
     )
 

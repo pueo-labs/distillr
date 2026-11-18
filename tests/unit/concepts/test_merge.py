@@ -149,9 +149,9 @@ class TestBuildMergedConcept:
             canonical,
             grouped,
             topic="t",
-            provenance={"model": "grok-4.3", "prompt_id": "concepts.extract.v1"},
+            provenance={"model": "grok-4.7", "prompt_id": "concepts.extract.v1"},
         )
-        assert m.provenance["model"] == "grok-4.3"
+        assert m.provenance["model"] == "grok-4.7"
         assert m.provenance["prompt_id"] == "concepts.extract.v1"
 
     def test_topic_passed_through(self) -> None:

@@ -379,7 +379,7 @@ class TestWriteSections:
             text="Section content with enough words to count.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         result = _write_sections(
@@ -400,7 +400,7 @@ class TestWriteSections:
             text="Filtered section content.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         result = _write_sections(
@@ -423,7 +423,7 @@ class TestWriteSections:
             text="",
             input_tokens=0,
             output_tokens=0,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         result = _write_sections(
@@ -443,7 +443,7 @@ class TestWriteSections:
             text="Override content.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         active_sections = [REPORT_SECTIONS[0], REPORT_SECTIONS[1]]
 
@@ -471,7 +471,7 @@ class TestWriteSections:
             text="Progress section content.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         _write_sections(
@@ -499,7 +499,7 @@ class TestWriteSections:
             text="Section content with unresolvable source handle [cite: 1].",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         result = _write_sections(
@@ -521,7 +521,7 @@ class TestWriteSections:
             text="Paid section content.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         tracker = CostTracker(budget=0.0)
 
@@ -709,13 +709,13 @@ class TestQaPhase:
                 text="### Executive Briefing\n**Score**: FAIL\nFix this.\n### Strategic Synthesis\n**Score**: PASS",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
             LLM_Response(
                 text="rewritten content",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
         ]
 
@@ -740,13 +740,13 @@ class TestQaPhase:
                 text="### Executive Briefing\n**Score**: FAIL\nFix this.",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
             LLM_Response(
                 text="rewritten content [cite: 1]",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
         ]
 
@@ -772,13 +772,13 @@ class TestQaPhase:
                 text="### Executive Briefing\n**Score**: FAIL\nFix this.",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
             LLM_Response(
                 text="rewritten content",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
         ]
 
@@ -821,7 +821,7 @@ class TestQaPhase:
             text="### Executive Briefing\n**Score**: PASS",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         tracker = CostTracker(budget=0.0)
 
@@ -855,7 +855,7 @@ class TestQaPhase:
                 ),
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
                 provider_name="ollama",
                 provider_type="local",
             ),
@@ -863,7 +863,7 @@ class TestQaPhase:
                 text="paid rewrite",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
         ]
         tracker = CostTracker(budget=0.0)
@@ -888,7 +888,7 @@ class TestQaPhase:
             text="### Executive Briefing\n**Score**: PASS\nLooks good.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         updated, rewrote = _run_qa_phase("ai", config, "dossier", "report", written_sections)
@@ -911,7 +911,7 @@ class TestQaPhase:
                 text="### Executive Briefing\n**Score**: FAIL",
                 input_tokens=10,
                 output_tokens=20,
-                model="grok-4.3",
+                model="grok-4.7",
             ),
             Exception("boom"),
         ]
@@ -935,7 +935,7 @@ class TestQaPhase:
             text="### Unknown Section\n**Score**: FAIL\nNeeds work.",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         updated, rewrote = _run_qa_phase("ai", config, "dossier", "report", written_sections)

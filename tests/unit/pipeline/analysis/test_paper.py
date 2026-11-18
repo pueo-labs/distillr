@@ -16,7 +16,7 @@ from distill.pipeline.analysis.paper import analyze_paper, synthesize_papers
 from distill.pipeline.costs import CostTracker, TokenUsage
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 
@@ -42,7 +42,7 @@ def test_analyze_paper_builds_frontmatter(tmp_path):
 
     assert 'paper_title: "Agent \\"Memory\\""' in insights
     assert "paper_id: 2602.12670v1" in insights
-    assert "analyzed_by: grok-4.3" in insights
+    assert "analyzed_by: grok-4.7" in insights
     assert "source_mode: abstract_only" in insights
     assert insights.rstrip().endswith("paper body")
     assert "## Abstract" in document
@@ -62,7 +62,7 @@ def test_empty_single_pass_refuses_but_keeps_successful_call_accounting(
         ),
     )
     tracker = CostTracker()
-    response = LLM_Response(text=text, input_tokens=17, output_tokens=2, model="grok-4.6")
+    response = LLM_Response(text=text, input_tokens=17, output_tokens=2, model="grok-4.7")
     with (
         patch("distill.pipeline.analysis.paper.llm_call", return_value=response) as transport,
         pytest.raises(ValueError, match="analysis is incomplete"),
@@ -72,7 +72,7 @@ def test_empty_single_pass_refuses_but_keeps_successful_call_accounting(
     assert len(tracker.entries) == 1
     usage = tracker.entries[0]
     assert usage.call_type == "paper"
-    assert usage.model == "grok-4.6"
+    assert usage.model == "grok-4.7"
     assert usage.prompt_tokens == 17
     assert usage.completion_tokens == 2
     assert tracker.total_cost > 0

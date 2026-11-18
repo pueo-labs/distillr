@@ -157,7 +157,7 @@ class TestOutputSanitization:
 def _config_baseline_text() -> str:
     """Structural text of a config's renderings with NO real secret present.
 
-    Field names (xai_fast_model, ...) and default values (grok-4.3, warn) appear
+    Field names (xai_fast_model, ...) and default values (grok-4.7, warn) appear
     verbatim in repr/str/JSON. A candidate secret that is a substring of this
     baseline collides with structure, not with a leaked key -- the SecretStr is
     still masked -- so such candidates are filtered out below rather than counted

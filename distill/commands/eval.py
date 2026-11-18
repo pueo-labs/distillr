@@ -127,13 +127,13 @@ def eval_cmd(  # noqa: C901 — CLI: option parse + estimate + run + report + re
         "auto",
         "--models",
         "-m",
-        help="Comma-separated model ids to compare. 'auto' = grok-4.6 with an XAI key, "
+        help="Comma-separated model ids to compare. 'auto' = grok-4.7 with an XAI key, "
         "else a fitting local Ollama model.",
     ),
     anchor: str = typer.Option(
         "auto",
         "--anchor",
-        help="Reference model the others are compared against. 'auto' = grok-4.6 with an "
+        help="Reference model the others are compared against. 'auto' = grok-4.7 with an "
         "XAI key, else the first listed model.",
     ),
     judge: str = typer.Option(
@@ -168,8 +168,8 @@ def eval_cmd(  # noqa: C901 — CLI: option parse + estimate + run + report + re
     against the source) AND have the pairwise judge confirm it at par with the
     anchor; with no neutral judge the eval fails closed (stay on the incumbent).
     The composite is shown for diagnosis only. It recommends; it never switches
-    your configured model. To go cheaper than the grok-4.6 cloud default, eval a
-    local model (e.g. `--models grok-4.6,qwen3.5:27b` with Ollama running).
+    your configured model. To go cheaper than the grok-4.7 cloud default, eval a
+    local model (e.g. `--models grok-4.7,qwen3.5:27b` with Ollama running).
     """
     from datetime import datetime
 
@@ -195,9 +195,9 @@ def eval_cmd(  # noqa: C901 — CLI: option parse + estimate + run + report + re
         raise typer.Exit(1)
 
     config = get_config()
-    # Adaptive defaults: cloud (grok-4.6) when an XAI key exists AND the active
+    # Adaptive defaults: cloud (grok-4.7) when an XAI key exists AND the active
     # cost policy actually permits a metered route, else a fitting local model.
-    # Without the policy check, `--cost-mode no-metered eval` selected grok-4.6
+    # Without the policy check, `--cost-mode no-metered eval` selected grok-4.7
     # as model and anchor, quoted a spend estimate for it, then failed every
     # fixture on the route block and still exited 0 -- a green run full of zeros
     # on exactly the cost mode the docs recommend.
@@ -211,16 +211,16 @@ def eval_cmd(  # noqa: C901 — CLI: option parse + estimate + run + report + re
     )
     best_local = _best_local_model()
     if models == "auto":
-        models = "grok-4.6" if cloud_ok else (best_local or "")
+        models = "grok-4.7" if cloud_ok else (best_local or "")
     model_list = [m.strip() for m in models.split(",") if m.strip()]
     if not model_list:
         console.print(
-            "[red]No models to eval.[/red] With an XAI key: --models grok-4.6,qwen3.5:27b. "
+            "[red]No models to eval.[/red] With an XAI key: --models grok-4.7,qwen3.5:27b. "
             "For local-only: install an Ollama model (see `distill doctor`) or pass --models <name>."
         )
         raise typer.Exit(1)
     if anchor == "auto":
-        anchor = "grok-4.6" if cloud_ok else model_list[0]
+        anchor = "grok-4.7" if cloud_ok else model_list[0]
     if judge == "auto":
         # A migration verdict must come from a judge that is neither the anchor's
         # family (no incumbent grading its own replacement — biased against
@@ -233,8 +233,8 @@ def eval_cmd(  # noqa: C901 — CLI: option parse + estimate + run + report + re
         def _neutral(cand: str) -> bool:
             return bool(cand) and not judge_shares_family(cand, anchor) and cand not in model_list
 
-        if cloud_ok and _neutral("grok-4.6"):
-            judge = "grok-4.6"
+        if cloud_ok and _neutral("grok-4.7"):
+            judge = "grok-4.7"
         elif best_local is not None and _neutral(best_local):
             judge = best_local
         else:

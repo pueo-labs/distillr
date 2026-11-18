@@ -133,7 +133,7 @@ class TestBudgetedCostTracker:
                 TokenUsage(
                     prompt_tokens=1_000,
                     completion_tokens=1_000,
-                    model="grok-4.3",
+                    model="grok-4.7",
                     provider_name="xai",
                     provider_type="metered-api",
                 )
@@ -1323,7 +1323,7 @@ class TestRunScopeReport:
             TokenUsage(
                 prompt_tokens=1_000_000,
                 completion_tokens=0,
-                model="grok-4.3",
+                model="grok-4.7",
                 call_type="preexisting",
             )
         )

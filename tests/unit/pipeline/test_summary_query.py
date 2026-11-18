@@ -42,7 +42,7 @@ def _patch_llm(
             text=text,
             input_tokens=10,
             output_tokens=10,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
     monkeypatch.setattr(sq_mod, "llm_call", fake)
@@ -420,7 +420,7 @@ class TestSummarizeQuery:
         _patch_llm(monkeypatch, calls)
         sq_mod.summarize_query(config, "t", "grounding verification")
         cache_file = next((config.library_dir / ".distill" / "summary_cache").glob("*.json"))
-        cache_file.write_text('{"summary": 123, "model": "grok-4.3"}', encoding="utf-8")
+        cache_file.write_text('{"summary": 123, "model": "grok-4.7"}', encoding="utf-8")
 
         result = sq_mod.summarize_query(config, "t", "grounding verification")
 
@@ -538,7 +538,7 @@ class TestMcpTools:
             summary="Brief [checker_Insights].",
             sources=["checker_Insights"],
             cached=True,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         with (
@@ -550,7 +550,7 @@ class TestMcpTools:
         assert result["summary"] == summary.summary
         assert result["sources"] == summary.sources
         assert result["cached"] is True
-        assert result["model"] == "grok-4.3"
+        assert result["model"] == "grok-4.7"
         assert result["cost"] == _FAKE_COST
 
     def test_find_insights_summary_refusal_status(self, config, monkeypatch):
@@ -564,7 +564,7 @@ class TestMcpTools:
             summary="Brief without citations.",
             sources=[],
             cached=False,
-            model="grok-4.3",
+            model="grok-4.7",
             refused_reason="summary includes no valid source citations; nothing to cache",
         )
 

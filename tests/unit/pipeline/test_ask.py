@@ -49,7 +49,7 @@ def _llm(monkeypatch, text: str):
         ask_mod,
         "llm_call",
         lambda rc, **kwargs: LLM_Response(
-            text=text, input_tokens=10, output_tokens=10, model="grok-4.3"
+            text=text, input_tokens=10, output_tokens=10, model="grok-4.7"
         ),
     )
 
@@ -345,7 +345,7 @@ class TestAsk:
 
         def fake_llm(rc, **kwargs):
             seen.update(kwargs)
-            return LLM_Response(text=GROUNDED, input_tokens=10, output_tokens=10, model="grok-4.3")
+            return LLM_Response(text=GROUNDED, input_tokens=10, output_tokens=10, model="grok-4.7")
 
         monkeypatch.setattr(ask_mod, "llm_call", fake_llm)
 

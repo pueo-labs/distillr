@@ -23,8 +23,7 @@ from distill.llm.cost_policy import (
 from distill.llm.fallback import fallback_target
 from distill.llm.images import LLMImage
 from distill.llm.model_policy import (
-    RETIRED_MODELS,
-    RETIREMENT_DATE,
+    apply_configured_model,
     is_xai_media_generation_model,
     scheduled_model_refusal,
     xai_media_generation_refusal,
@@ -102,8 +101,8 @@ class RouterConfig(BaseSettings):
     # DISTILL_COST_MODE: auto | no-metered | paid-ok
     cost_mode: CostMode = "auto"
     # Tier defaults
-    fast_model: str = "grok-4.6"
-    premium_model: str = "grok-4.6"
+    fast_model: str = "grok-4.7"
+    premium_model: str = "grok-4.7"
 
     # Per-workload model overrides (empty = use tier default)
     analysis_model: str = ""
@@ -215,18 +214,7 @@ class RouterConfig(BaseSettings):
 
         if refusal := scheduled_model_refusal(model_id):
             raise ConfigurationError(refusal)
-        if model_id in RETIRED_MODELS:
-            replacement = RETIRED_MODELS[model_id]
-            logger.warning(
-                "Model '%s' is retired (effective %s). "
-                "Falling back to '%s'. Update your config to silence this warning.",
-                model_id,
-                RETIREMENT_DATE,
-                replacement,
-            )
-            model_id = replacement
-
-        return provider_name, model_id
+        return provider_name, apply_configured_model(model_id)
 
     def validate_config(self, workload_tag: str = "") -> None:
         """Validate configuration eagerly.  Raise ``ConfigurationError`` early."""

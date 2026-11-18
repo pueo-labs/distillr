@@ -22,7 +22,7 @@ from distill.prompts.registry import PROMPT_IDS
 from distill.prompts.shared import DERIVED_CONTENT_RULES
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     """Return a mock llm_call that returns a fixed LLM_Response."""
 
     def _call(config, workload_tag, prompt, **kwargs):
@@ -36,7 +36,7 @@ def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
     return _call
 
 
-def _fake_llm_call_sequence(texts: list[str], model: str = "grok-4.3"):
+def _fake_llm_call_sequence(texts: list[str], model: str = "grok-4.7"):
     """Return a mock llm_call that returns different texts in sequence."""
     it = iter(texts)
 
@@ -57,7 +57,7 @@ def test_analyze_video_records_caption_coverage_without_changing_the_prompt(tmp_
 
     def _call(config, workload_tag, prompt, **kwargs):
         prompts.append(prompt)
-        return LLM_Response(text="pass body", input_tokens=10, output_tokens=20, model="grok-4.3")
+        return LLM_Response(text="pass body", input_tokens=10, output_tokens=20, model="grok-4.7")
 
     evidence = evidence_from_vtt("WEBVTT\n\n00:00:01.000 --> 00:00:04.000\nSLIDE-ONLY-TOKEN\n")
     with patch("distill.pipeline.analysis.video.llm_call", _call):
@@ -126,7 +126,7 @@ def test_empty_video_pass_refuses_after_accounting_without_metadata_only_fallbac
         )
         return LLM_Response(
             text=text,
-            model="grok-4.6",
+            model="grok-4.7",
             provider_name="xai",
             provider_type="cloud",
             input_tokens=17,

@@ -73,7 +73,7 @@ def _performance_provider(run_id: str, elapsed_seconds: float) -> dict[str, obje
     return {
         "run_id": run_id,
         "timestamp": "2026-07-12T12:00:00+00:00",
-        "model": "grok-4.3",
+        "model": "grok-4.7",
         "workload_tag": "analysis",
         "outcome": "success",
         "elapsed_seconds": elapsed_seconds,
@@ -683,7 +683,7 @@ def test_local_cloud_telemetry_helpers_parse_valid_and_invalid_rows(tmp_path, mo
                 ),
                 json.dumps(
                     {
-                        "model": "grok-4.3",
+                        "model": "grok-4.7",
                         "workload_tag": "analysis",
                         "provider_type": "cloud",
                         "elapsed_seconds": 1.0,

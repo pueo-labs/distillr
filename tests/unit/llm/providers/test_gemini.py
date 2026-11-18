@@ -85,13 +85,13 @@ class TestGeminiProviderSuccess:
             candidates_token_count=50,
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-pro", "hello"))
+        result = asyncio.run(provider.call("gemini-4-carbon", "hello"))
 
         assert isinstance(result, LLM_Response)
         assert result.text == "hello from gemini"
         assert result.input_tokens == 100
         assert result.output_tokens == 50
-        assert result.model == "gemini-3.1-pro"
+        assert result.model == "gemini-4-carbon"
 
     def test_custom_timeout_configures_google_transport_in_milliseconds(self) -> None:
         provider, default_client = _build_provider()
@@ -102,7 +102,7 @@ class TestGeminiProviderSuccess:
         object.__setattr__(provider, "_client_factory", factory)
         object.__setattr__(provider, "_default_timeout", 300)
 
-        result = asyncio.run(provider.call("gemini-3.1-flash", "hello", timeout=42))
+        result = asyncio.run(provider.call("gemini-3.8-flash", "hello", timeout=42))
 
         assert result.text == "gemini response"
         factory.assert_called_once_with(
@@ -127,7 +127,7 @@ class TestGeminiProviderSuccess:
         object.__setattr__(provider, "_default_timeout", 300)
 
         with caplog.at_level("WARNING"):
-            result = asyncio.run(provider.call("gemini-3.1-flash", "hello", timeout=42))
+            result = asyncio.run(provider.call("gemini-3.8-flash", "hello", timeout=42))
 
         assert result.text == "accepted response"
         assert len(result.usage_attempts) == 1
@@ -141,7 +141,7 @@ class TestGeminiProviderSuccess:
             text="no usage", has_usage=False
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-flash", "hello", max_tokens=77))
+        result = asyncio.run(provider.call("gemini-3.8-flash", "hello", max_tokens=77))
 
         assert result.text == "no usage"
         assert result.input_tokens == 1029
@@ -156,7 +156,7 @@ class TestGeminiProviderSuccess:
             text="partial", usage_metadata=usage
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-flash", "hello", max_tokens=88))
+        result = asyncio.run(provider.call("gemini-3.8-flash", "hello", max_tokens=88))
 
         assert result.input_tokens == 1029
         assert result.output_tokens == 88
@@ -174,7 +174,7 @@ class TestGeminiProviderSuccess:
             text="answer", usage_metadata=usage
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-pro", "hello", max_tokens=120))
+        result = asyncio.run(provider.call("gemini-4-carbon", "hello", max_tokens=120))
 
         assert result.output_tokens == 100
         assert result.usage_source == "reported"
@@ -191,7 +191,7 @@ class TestGeminiProviderSuccess:
             text="answer", usage_metadata=usage
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-flash", "hello"))
+        result = asyncio.run(provider.call("gemini-3.8-flash", "hello"))
 
         assert result.output_tokens == 7
         assert result.usage_source == "reported"
@@ -208,7 +208,7 @@ class TestGeminiProviderSuccess:
             text="answer", usage_metadata=usage
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-pro", "hello", max_tokens=120))
+        result = asyncio.run(provider.call("gemini-4-carbon", "hello", max_tokens=120))
 
         assert result.output_tokens == 120
         assert result.usage_source == "conservative"
@@ -225,7 +225,7 @@ class TestGeminiProviderSuccess:
             text="visible answer", usage_metadata=usage
         )
 
-        result = asyncio.run(provider.call("gemini-3.1-pro", "hello", max_tokens=120))
+        result = asyncio.run(provider.call("gemini-4-carbon", "hello", max_tokens=120))
 
         assert result.output_tokens == 120
         assert result.usage_source == "conservative"
@@ -237,7 +237,7 @@ class TestGeminiProviderSuccess:
 
         asyncio.run(
             provider.call(
-                "gemini-3.1-flash",
+                "gemini-custom",
                 "hello",
                 max_tokens=123,
                 temperature=0.4,
@@ -249,7 +249,9 @@ class TestGeminiProviderSuccess:
             "temperature": 0.4,
         }
 
-    @pytest.mark.parametrize("model", ["gemini-3.7-flash", "gemini-3.8-flash"])
+    @pytest.mark.parametrize(
+        "model", ["gemini-3.8-flash", "gemini-4-carbon", "gemini-3.5-flash-lite"]
+    )
     def test_temperature_is_omitted_for_models_that_deprecate_sampling(self, model: str) -> None:
         """Current Flash families ignore sampling params, so do not forward them."""
         provider, mock_client = _build_provider()
@@ -287,7 +289,7 @@ class TestGeminiProviderSuccess:
         provider, mock_client = _build_provider()
         mock_client.models.generate_content.return_value = _make_mock_response()
 
-        asyncio.run(provider.call("gemini-3.1-flash", "hello", max_tokens=456))
+        asyncio.run(provider.call("gemini-3.8-flash", "hello", max_tokens=456))
 
         assert mock_client.models.generate_content.call_args.kwargs["config"] == {
             "max_output_tokens": 456
@@ -306,7 +308,7 @@ class TestGeminiProviderRetry:
         ]
 
         with patch("distill.llm.providers.gemini.time.sleep") as mock_sleep:
-            result = asyncio.run(provider.call("gemini-3.1-pro", "hello", retries=2))
+            result = asyncio.run(provider.call("gemini-4-carbon", "hello", retries=2))
 
         assert result.text == "ok"
         assert [row.outcome for row in result.usage_attempts] == ["error", "success"]
@@ -324,7 +326,7 @@ class TestGeminiProviderRetry:
             patch("distill.llm.providers.gemini.time.sleep"),
             pytest.raises(RuntimeError, match="permanent") as raised,
         ):
-            asyncio.run(provider.call("gemini-3.1-pro", "hello", retries=2))
+            asyncio.run(provider.call("gemini-4-carbon", "hello", retries=2))
 
         assert mock_client.models.generate_content.call_count == 3
         attempts = usage_attempts_from_exception(raised.value)
@@ -344,7 +346,7 @@ class TestGeminiProviderRetry:
             patch("distill.llm.providers.gemini.time.sleep") as mock_sleep,
             pytest.raises(PermanentGeminiError, match="auth"),
         ):
-            asyncio.run(provider.call("gemini-3.1-pro", "hello", retries=2))
+            asyncio.run(provider.call("gemini-4-carbon", "hello", retries=2))
 
         mock_sleep.assert_not_called()
         assert mock_client.models.generate_content.call_count == 1

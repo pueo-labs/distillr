@@ -24,49 +24,24 @@ __all__ = [
 
 # Known cloud context windows (documented values, in tokens)
 CLOUD_CONTEXT_WINDOWS: dict[str, int] = {
-    "gemini-4-argon": 1_048_576,
+    "gemini-4-carbon": 1_048_576,
     "grok-4.7": 500_000,
-    "grok-4.6": 500_000,
-    "grok-4.5": 500_000,
-    "grok-4.3": 1_000_000,
-    "grok-4.20-multi-agent-0309": 1_000_000,
-    "grok-4.20-0309-non-reasoning": 1_000_000,
-    "grok-4.20-non-reasoning": 1_000_000,
-    "grok-4.20-0309-reasoning": 1_000_000,
-    "grok-4.20": 1_000_000,
     "gemini-3.8-flash": 1_048_576,
-    "gemini-3.6-flash": 1_000_000,
-    "gemini-3.7-flash": 1_000_000,
-    "gemini-3.5-flash": 1_000_000,
     "gemini-3.5-flash-lite": 1_000_000,
-    "gemini-3.1-pro-preview": 1_000_000,
-    "gemini-3.1-pro": 1_000_000,
-    "gemini-3.1-flash": 1_000_000,
-    "claude-fable-5": 1_000_000,
-    "claude-mythos-5": 1_000_000,
-    "claude-opus-5": 1_000_000,
+    "claude-fable-5-2": 1_000_000,
+    "claude-fable-5.2": 1_000_000,
+    "claude-mythos-5-2": 1_000_000,
+    "claude-mythos-5.2": 1_000_000,
     "claude-opus-5-5": 1_000_000,
     "claude-opus-5.5": 1_000_000,
     "claude-sonnet-5-5": 1_000_000,
     "claude-sonnet-5.5": 1_000_000,
-    # Recent Opus 4 releases are also 1M-context. Without these entries an Opus
-    # route falls back to DEFAULT_CONTEXT_WINDOW (4096) and over-chunks input.
-    "claude-opus-4-8": 1_000_000,
-    "claude-opus-4-7": 1_000_000,
-    "claude-opus-4-6": 1_000_000,
-    "claude-sonnet-5": 1_000_000,
-    "claude-sonnet-4": 200_000,
-    "claude-haiku-4-5": 200_000,
-    "claude-haiku-4": 200_000,
+    "claude-haiku-5-5": 1_000_000,
+    "claude-haiku-5.5": 1_000_000,
     "gpt-6-astra": 1_050_000,
     "gpt-6.1-sol": 1_050_000,
+    "gpt-6.1-terra": 1_050_000,
     "gpt-6-luna": 1_050_000,
-    "gpt-5.6-sol": 1_050_000,
-    "gpt-5.6": 1_050_000,
-    "gpt-5.6-terra": 1_050_000,
-    "gpt-5.6-luna": 1_050_000,
-    "gpt-4.1": 1_000_000,
-    "gpt-4.1-mini": 128_000,
     "deepseek-v4.1-flash": 1_048_576,
     "deepseek-v4-pro-0813": 1_048_576,
     "deepseek-v4-pro": 1_048_576,
@@ -221,9 +196,7 @@ def _resolve_cloud_context_window(model: str) -> int:
     if normalized in CLOUD_CONTEXT_WINDOWS:
         return CLOUD_CONTEXT_WINDOWS[normalized]
     # Prefix match, longest key first so a broad alias cannot shadow a more
-    # specific one (``gpt-4.1`` at 1M would otherwise swallow ``gpt-4.1-mini``
-    # at 128k and size chunks to a window the model does not have). This mirrors
-    # the ordering ``get_pricing`` already relies on.
+    # specific one. This mirrors the ordering ``get_pricing`` already relies on.
     for key in sorted(CLOUD_CONTEXT_WINDOWS, key=len, reverse=True):
         if normalized.startswith(key):
             return CLOUD_CONTEXT_WINDOWS[key]

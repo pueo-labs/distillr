@@ -110,7 +110,7 @@ def test_fallback_preserves_and_deduplicates_provider_accurate_attempts(tmp_path
     )
 
     assert [(row.provider_name, row.model, row.outcome) for row in response.usage_attempts] == [
-        ("xai", "grok-4.6", "error"),
+        ("xai", "grok-4.7", "error"),
         ("ollama", "qwen3.5:27b", "success"),
     ]
     assert len(tracker.entries) == 2
@@ -278,7 +278,7 @@ def test_projected_budget_stop_precedes_preexisting_provider_attempt_batch(tmp_p
         LLMUsageAttempt(
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
             provider_name="xai",
             provider_type="cloud",
             usage_source="conservative",
@@ -316,7 +316,7 @@ def test_no_metered_blocks_cloud_fallback_before_provider_construction(tmp_path,
         model="qwen3.5:27b",  # ollama now requires an explicit local model to validate
         cost_mode="no-metered",
         fallback_provider="xai",
-        fallback_model="grok-4.3",
+        fallback_model="grok-4.7",
     )
     constructed: list[str] = []
 
@@ -342,7 +342,7 @@ def test_paid_ok_allows_configured_cloud_fallback(tmp_path, monkeypatch):
         model="qwen3.5:27b",  # ollama now requires an explicit local model to validate
         cost_mode="paid-ok",
         fallback_provider="xai",
-        fallback_model="grok-4.3",
+        fallback_model="grok-4.7",
     )
     constructed: list[str] = []
 
@@ -355,7 +355,7 @@ def test_paid_ok_allows_configured_cloud_fallback(tmp_path, monkeypatch):
 
     response = router.call(cfg, "analysis", "prompt")
 
-    assert response.text == "xai:grok-4.3"
+    assert response.text == "xai:grok-4.7"
     assert constructed == ["ollama", "xai"]
 
 

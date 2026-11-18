@@ -91,7 +91,7 @@ def check_retired_models(config: DistillConfig) -> list[str]:
     Returns a list of warning strings for any configured model that is retired.
     Each warning includes the field name, model name, retirement date, and replacement.
     """
-    from distill.llm.router import RETIRED_MODELS, RETIREMENT_DATE
+    from distill.llm.model_policy import RETIRED_MODELS, RETIREMENT_DATE, SUPERSEDED_MODELS
 
     model_fields = [
         "xai_fast_model",
@@ -110,6 +110,11 @@ def check_retired_models(config: DistillConfig) -> list[str]:
             warnings.append(
                 f"{field} uses retired model '{value}' "
                 f"(retiring {RETIREMENT_DATE}); replace with '{replacement}'"
+            )
+        elif value and value.lower() in SUPERSEDED_MODELS:
+            replacement = SUPERSEDED_MODELS[value.lower()]
+            warnings.append(
+                f"{field} uses superseded model '{value}'; replace with '{replacement}'"
             )
     return warnings
 
@@ -210,6 +215,14 @@ def _doctor_validate_key(
         result = validate_openrouter_key(config, tracker, model=model)
         return cast(tuple[DoctorKeyStatus, str], result)
     raise ValueError(f"unknown provider: {provider}")
+
+
+def _current_probe_model(model: str) -> str:
+    """Probe the current id when a configured model has been superseded."""
+
+    from distill.llm.model_policy import apply_configured_model
+
+    return apply_configured_model(model)
 
 
 def _key_error_status(exc: Exception) -> DoctorKeyStatus:
@@ -350,7 +363,7 @@ def _validate_xai_key(
         return ("missing", "")
     if skipped := _cost_policy_skip("xai", config):
         return skipped
-    model = model or config.xai_model_for("analysis")
+    model = _current_probe_model(model or config.xai_model_for("analysis"))
     max_tokens = 5
     if refused := _authorize_probe(
         tracker,
@@ -404,7 +417,7 @@ def _validate_gemini_key(
         return ("not_set", "")
     if skipped := _cost_policy_skip("gemini", config):
         return skipped
-    model = model or "gemini-3.8-flash"
+    model = _current_probe_model(model or "gemini-3.8-flash")
     max_tokens = 5
     if refused := _authorize_probe(
         tracker,
@@ -475,7 +488,7 @@ def _validate_anthropic_key(
         return ("not_set", "")
     if skipped := _cost_policy_skip("anthropic", config):
         return skipped
-    model = model or "claude-sonnet-5"
+    model = _current_probe_model(model or "claude-sonnet-5-5")
     max_tokens = 1
     if refused := _authorize_probe(
         tracker,
@@ -537,7 +550,7 @@ def _validate_openai_key(
         return ("not_set", "")
     if skipped := _cost_policy_skip("openai", config):
         return skipped
-    model = model or "gpt-4.1-mini"
+    model = _current_probe_model(model or "gpt-6-luna")
     max_tokens = 5
     if refused := _authorize_probe(
         tracker,
@@ -553,10 +566,25 @@ def _validate_openai_key(
             api_key=config.openai_api_key.get_secret_value(),
             max_retries=0,
         )
-        response = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": _PROBE_PROMPT}],
-            max_tokens=max_tokens,
+        # gpt-6 chat models count reasoning toward the completion cap and reject
+        # the deprecated max_tokens field. reasoning_effort "none" keeps this
+        # key probe on a few visible tokens. Older explicit ids keep max_tokens.
+        normalized = model.strip().lower()
+        request: dict[str, object] = {
+            "model": model,
+            "messages": [{"role": "user", "content": _PROBE_PROMPT}],
+        }
+        if normalized.startswith(("gpt-5", "gpt-6", "o1", "o3", "o4")):
+            request["max_completion_tokens"] = max_tokens
+        else:
+            request["max_tokens"] = max_tokens
+        if normalized.startswith("gpt-6"):
+            request["reasoning_effort"] = "none"
+        response = cast(
+            object,
+            client.chat.completions.create(
+                **request  # type: ignore[arg-type] - optional chat fields vary by model family
+            ),
         )
     except BaseException as exc:
         _record_probe_failure(

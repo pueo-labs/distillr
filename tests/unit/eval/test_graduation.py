@@ -35,10 +35,10 @@ def _rows(
 
 
 def _summary(*extra_rows: EvalRow | list[EvalRow]):
-    rows = _rows("grok-4.3", winrate=None, faithfulness="faithful", cost=0.1)
+    rows = _rows("grok-4.7", winrate=None, faithfulness="faithful", cost=0.1)
     for item in extra_rows:
         rows.extend(item if isinstance(item, list) else [item])
-    return summarize(rows, anchor="grok-4.3")
+    return summarize(rows, anchor="grok-4.7")
 
 
 def _probe(
@@ -62,9 +62,9 @@ def _probe(
 
 
 def test_eval_gate_passes_when_faithful_and_at_par():
-    summary = _summary(_rows("adapter:grok-4.3", winrate=0.55, faithfulness="faithful"))
+    summary = _summary(_rows("adapter:grok-4.7", winrate=0.55, faithfulness="faithful"))
 
-    decision = eval_gate_decision(summary, "adapter:grok-4.3")
+    decision = eval_gate_decision(summary, "adapter:grok-4.7")
 
     assert decision.passed
     assert decision.blocked_reasons == ()
@@ -75,28 +75,28 @@ def test_eval_gate_passes_when_faithful_and_at_par():
 def test_eval_gate_blocks_anchor_as_graduation_candidate():
     summary = _summary()
 
-    decision = eval_gate_decision(summary, "grok-4.3")
+    decision = eval_gate_decision(summary, "grok-4.7")
 
     assert not decision.passed
     assert "candidate is the anchor" in decision.blocked_reasons[0]
 
 
 def test_eval_gate_blocks_missing_judge_signal():
-    summary = _summary(_rows("adapter:grok-4.3", winrate=None, faithfulness="faithful"))
+    summary = _summary(_rows("adapter:grok-4.7", winrate=None, faithfulness="faithful"))
 
-    decision = eval_gate_decision(summary, "adapter:grok-4.3")
+    decision = eval_gate_decision(summary, "adapter:grok-4.7")
 
     assert not decision.passed
     assert "pairwise judge did not produce a signal" in decision.blocked_reasons
 
 
 def test_eval_gate_blocks_partial_judge_evidence():
-    candidate = _rows("adapter:grok-4.3", winrate=0.55, faithfulness="faithful")
+    candidate = _rows("adapter:grok-4.7", winrate=0.55, faithfulness="faithful")
     candidate[1] = replace(candidate[1], pairwise_winrate=None)
     candidate[2] = replace(candidate[2], faithfulness="unknown")
     summary = _summary(candidate)
 
-    decision = eval_gate_decision(summary, "adapter:grok-4.3")
+    decision = eval_gate_decision(summary, "adapter:grok-4.7")
 
     assert not decision.passed
     assert "faithfulness judge produced signals for 2 of 3 fixtures" in decision.blocked_reasons
@@ -104,35 +104,35 @@ def test_eval_gate_blocks_partial_judge_evidence():
 
 
 def test_eval_gate_blocks_unfaithful_or_errored_models():
-    unfaithful = _summary(_rows("adapter:grok-4.3", winrate=0.70, faithfulness="unfaithful"))
-    errored = _summary(_rows("adapter:grok-4.3", winrate=0.70, faithfulness="faithful", error="x"))
+    unfaithful = _summary(_rows("adapter:grok-4.7", winrate=0.70, faithfulness="unfaithful"))
+    errored = _summary(_rows("adapter:grok-4.7", winrate=0.70, faithfulness="faithful", error="x"))
 
     assert (
         "model was unfaithful on 3 fixture(s)"
-        in eval_gate_decision(unfaithful, "adapter:grok-4.3").blocked_reasons
+        in eval_gate_decision(unfaithful, "adapter:grok-4.7").blocked_reasons
     )
     assert (
         "model produced no valid eval output"
-        in eval_gate_decision(errored, "adapter:grok-4.3").blocked_reasons
+        in eval_gate_decision(errored, "adapter:grok-4.7").blocked_reasons
     )
 
 
 def test_eval_gate_blocks_candidate_less_faithful_than_anchor():
-    summary = _summary(_rows("adapter:grok-4.3", winrate=0.70, faithfulness="minor"))
+    summary = _summary(_rows("adapter:grok-4.7", winrate=0.70, faithfulness="minor"))
 
-    decision = eval_gate_decision(summary, "adapter:grok-4.3")
+    decision = eval_gate_decision(summary, "adapter:grok-4.7")
 
     assert not decision.passed
     assert "model is less faithful than the anchor" in decision.blocked_reasons
 
 
 def test_adapter_graduation_requires_doctor_and_eval_gate():
-    summary = _summary(_rows("adapter:grok-4.3", winrate=0.60, faithfulness="faithful"))
+    summary = _summary(_rows("adapter:grok-4.7", winrate=0.60, faithfulness="faithful"))
 
     decision = adapter_route_graduation_decision(
         summary,
         _probe(),
-        model="adapter:grok-4.3",
+        model="adapter:grok-4.7",
     )
 
     assert decision.eligible
@@ -142,12 +142,12 @@ def test_adapter_graduation_requires_doctor_and_eval_gate():
 
 
 def test_adapter_graduation_blocks_doctor_failure():
-    summary = _summary(_rows("adapter:grok-4.3", winrate=0.60, faithfulness="faithful"))
+    summary = _summary(_rows("adapter:grok-4.7", winrate=0.60, faithfulness="faithful"))
 
     decision = adapter_route_graduation_decision(
         summary,
         _probe(eligible=False, blocked=["support statement is not current"]),
-        model="adapter:grok-4.3",
+        model="adapter:grok-4.7",
     )
 
     assert not decision.eligible

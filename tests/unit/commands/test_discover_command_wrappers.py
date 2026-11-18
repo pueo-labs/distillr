@@ -353,7 +353,7 @@ def test_synthesize_persists_recorded_usage_when_pipeline_fails(
             TokenUsage(
                 prompt_tokens=30,
                 completion_tokens=15,
-                model="grok-4.3",
+                model="grok-4.7",
                 call_type="synthesis",
                 provider_name="xai",
                 provider_type="cloud",
@@ -435,7 +435,7 @@ def test_synthesize_combines_inline_and_file_context(
             TokenUsage(
                 prompt_tokens=30,
                 completion_tokens=15,
-                model="grok-4.3",
+                model="grok-4.7",
                 call_type="synthesis",
                 provider_name="xai",
                 provider_type="cloud",

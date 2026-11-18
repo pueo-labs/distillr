@@ -189,7 +189,7 @@ def test_generic_report_failure_persists_incurred_usage_once(
                 call_type="report-test",
                 prompt_tokens=100,
                 completion_tokens=50,
-                model="grok-4.3",
+                model="grok-4.7",
             )
         )
         raise RuntimeError("provider failed")

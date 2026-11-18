@@ -92,7 +92,7 @@ def doctor() -> str:
     )
 
     # Retired models
-    from distill.llm.router import RETIRED_MODELS, RETIREMENT_DATE
+    from distill.llm.model_policy import RETIRED_MODELS, RETIREMENT_DATE
 
     model_fields = [
         "xai_fast_model",

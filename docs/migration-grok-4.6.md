@@ -1,5 +1,10 @@
 # Grok 4.6 default migration
 
+The current xAI default is `grok-4.7`. See
+[migration-grok-4.7.md](migration-grok-4.7.md). Current releases rewrite
+earlier xAI text ids, including `grok-4.6`, to `grok-4.7` before a call.
+This page records the 2026-08-13 default.
+
 As verified on 2026-08-13, xAI documents `grok-4.6` as its flagship text and
 code model. Distill uses it as the default for analysis, reranking, synthesis,
 site and paper work, briefs, and ordered report section writing.
@@ -8,7 +13,7 @@ This is a default change, not a forced migration. Existing environment and
 per-workload overrides keep their configured model IDs. A user who pinned
 `grok-4.5` or `grok-4.3` continues to use that model and its registered price.
 
-## Current registry facts
+## August 2026 registry facts
 
 | Model | Short input per 1M | Short output per 1M | Long input per 1M | Long output per 1M | Context | Distill status |
 |---|---:|---:|---:|---:|---:|---|

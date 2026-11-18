@@ -8,7 +8,7 @@ The resilience order (0.12.11, the 0.11 YouTube-resilience margin):
    captionless, which is permanent and not retried.
 2. **Local-first Whisper ladder** — download bestaudio and run the same
    ``transcribe_media`` routing every other audio source uses
-   (faster-whisper local -> Grok STT -> OpenAI Whisper), with a vocabulary
+   (faster-whisper local -> Grok STT -> OpenAI gpt-transcribe), with a vocabulary
    hint built from the video's own title and uploader. Free on a CUDA box.
 3. **Scribe** — the legacy external fallback, kept as a last resort for
    installs that configured it.

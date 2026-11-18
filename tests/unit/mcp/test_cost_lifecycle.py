@@ -29,7 +29,7 @@ def _usage() -> TokenUsage:
         call_type="mcp-test",
         prompt_tokens=1_000_000,
         completion_tokens=1,
-        model="grok-4.3",
+        model="grok-4.7",
     )
 
 
@@ -48,7 +48,7 @@ def _record_tracker_usage(tracker: CostTracker) -> None:
             call_type="mcp-test",
             prompt_tokens=1_000_000,
             completion_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
         )
     )
 

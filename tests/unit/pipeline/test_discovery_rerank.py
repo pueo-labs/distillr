@@ -12,7 +12,7 @@ from distill.pipeline.discovery import discover_rerank
 def _llm_returning(payload: dict):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(
-            text=json.dumps(payload), input_tokens=10, output_tokens=20, model="grok-4.3"
+            text=json.dumps(payload), input_tokens=10, output_tokens=20, model="grok-4.7"
         )
 
     return _call

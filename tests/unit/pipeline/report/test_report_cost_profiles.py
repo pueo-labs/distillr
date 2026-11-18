@@ -19,7 +19,7 @@ def test_report_generation_estimates_are_not_legacy_placeholders():
 
 def test_report_token_totals_are_priced_as_separate_calls():
     estimate = _estimate_multi_call_cost(
-        "grok-4.6",
+        "grok-4.7",
         input_tokens=400_003,
         output_tokens=40_001,
         calls=4,
@@ -27,14 +27,14 @@ def test_report_token_totals_are_priced_as_separate_calls():
 
     expected = sum(
         (
-            compute_cost("grok-4.6", 100_001, 10_001),
-            compute_cost("grok-4.6", 100_001, 10_000),
-            compute_cost("grok-4.6", 100_001, 10_000),
-            compute_cost("grok-4.6", 100_000, 10_000),
+            compute_cost("grok-4.7", 100_001, 10_001),
+            compute_cost("grok-4.7", 100_001, 10_000),
+            compute_cost("grok-4.7", 100_001, 10_000),
+            compute_cost("grok-4.7", 100_000, 10_000),
         )
     )
     assert estimate == pytest.approx(expected)
-    assert estimate < compute_cost("grok-4.6", 400_003, 40_001)
+    assert estimate < compute_cost("grok-4.7", 400_003, 40_001)
 
 
 def test_corpus_report_estimate_and_no_qa_discount():

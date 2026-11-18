@@ -44,7 +44,7 @@ def fixture_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> DistillCo
 class _StubResponse:
     def __init__(self, payload: list) -> None:
         self.text = json.dumps(payload)
-        self.model = "grok-4.3"
+        self.model = "grok-4.7"
         self.input_tokens = 10
         self.output_tokens = 5
 
@@ -118,7 +118,7 @@ class TestConceptsCommand:
                 TokenUsage(
                     prompt_tokens=20,
                     completion_tokens=10,
-                    model="grok-4.3",
+                    model="grok-4.7",
                     call_type="concepts_extract",
                     provider_name="xai",
                     provider_type="cloud",

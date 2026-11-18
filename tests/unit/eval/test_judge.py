@@ -16,7 +16,7 @@ from distill.pipeline.costs import CostTracker
 
 
 def _resp(text: str):
-    return SimpleNamespace(text=text, input_tokens=200, output_tokens=30, model="grok-4.3")
+    return SimpleNamespace(text=text, input_tokens=200, output_tokens=30, model="grok-4.7")
 
 
 def _router_config() -> RouterConfig:
@@ -42,7 +42,7 @@ def test_pairwise_candidate_always_wins_both_orderings(monkeypatch):
     )
     monkeypatch.setattr(judge_mod, "llm_call", lambda *a, **k: _resp(next(seq)))
     tracker = CostTracker()
-    res = judge_pairwise("src", "cand", "anchor", judge_model="grok-4.3", tracker=tracker)
+    res = judge_pairwise("src", "cand", "anchor", judge_model="grok-4.7", tracker=tracker)
     assert res is not None
     assert res.win_rate == 1.0
     assert res.comparisons == 2
@@ -56,14 +56,14 @@ def test_pairwise_position_bias_cancels(monkeypatch):
     monkeypatch.setattr(
         judge_mod, "llm_call", lambda *a, **k: _resp('{"winner": "A", "rationale": "slot A"}')
     )
-    res = judge_pairwise("src", "cand", "anchor", judge_model="grok-4.3")
+    res = judge_pairwise("src", "cand", "anchor", judge_model="grok-4.7")
     assert res is not None
     assert res.win_rate == 0.5
 
 
 def test_pairwise_returns_none_when_unparseable(monkeypatch):
     monkeypatch.setattr(judge_mod, "llm_call", lambda *a, **k: _resp("no json here"))
-    assert judge_pairwise("s", "c", "a", judge_model="grok-4.3") is None
+    assert judge_pairwise("s", "c", "a", judge_model="grok-4.7") is None
 
 
 def test_pairwise_returns_none_when_json_object_is_malformed(monkeypatch):
@@ -74,7 +74,7 @@ def test_pairwise_returns_none_when_json_object_is_malformed(monkeypatch):
             "s",
             "c",
             "a",
-            judge_model="grok-4.3",
+            judge_model="grok-4.7",
             tracker=tracker,
             router_config=_router_config(),
         )
@@ -95,7 +95,7 @@ def test_pairwise_returns_none_for_unknown_winner_label(monkeypatch):
             "s",
             "c",
             "a",
-            judge_model="grok-4.3",
+            judge_model="grok-4.7",
             tracker=tracker,
             router_config=_router_config(),
         )
@@ -115,7 +115,7 @@ def test_pairwise_returns_none_when_only_one_ordering_parses(monkeypatch):
         ]
     )
     monkeypatch.setattr(judge_mod, "llm_call", lambda *a, **k: _resp(next(seq)))
-    assert judge_pairwise("s", "c", "a", judge_model="grok-4.3") is None
+    assert judge_pairwise("s", "c", "a", judge_model="grok-4.7") is None
 
 
 def test_pairwise_tie_verdicts_score_as_half(monkeypatch):
@@ -127,7 +127,7 @@ def test_pairwise_tie_verdicts_score_as_half(monkeypatch):
     )
     monkeypatch.setattr(judge_mod, "llm_call", lambda *a, **k: _resp(next(seq)))
     res = judge_pairwise(
-        "src", "cand", "anchor", judge_model="grok-4.3", router_config=_router_config()
+        "src", "cand", "anchor", judge_model="grok-4.7", router_config=_router_config()
     )
     assert res is not None
     assert res.win_rate == 0.5
@@ -137,7 +137,7 @@ def test_pairwise_tie_verdicts_score_as_half(monkeypatch):
 
 def test_judge_routes_to_its_own_provider(monkeypatch):
     # A gemini judge must hit the gemini endpoint, not the default xAI one
-    # (the bug that returned "Model not found: gemini-3.1-pro" from grok).
+    # (the bug that returned "Model not found: gemini-4-carbon" from grok).
     captured: dict = {}
 
     def fake_call(config, **kwargs):
@@ -146,15 +146,15 @@ def test_judge_routes_to_its_own_provider(monkeypatch):
         return _resp('{"winner": "A", "rationale": "x"}')
 
     monkeypatch.setattr(judge_mod, "llm_call", fake_call)
-    judge_pairwise("s", "cand", "anchor", judge_model="gemini-3.1-pro")
+    judge_pairwise("s", "cand", "anchor", judge_model="gemini-4-carbon")
     assert captured["provider"] == "gemini"
-    assert captured["model"] == "gemini-3.1-pro"
+    assert captured["model"] == "gemini-4-carbon"
 
 
 def test_judge_shares_family():
-    assert judge_shares_family("grok-4.3", "grok-4.20") is True
-    assert judge_shares_family("grok-4.3", "qwen3.5:27b") is False
-    assert judge_shares_family("gemini-3.1-pro", "grok-4.3") is False
+    assert judge_shares_family("grok-4.7", "grok-extra") is True
+    assert judge_shares_family("grok-4.7", "qwen3.5:27b") is False
+    assert judge_shares_family("gemini-4-carbon", "grok-4.7") is False
 
 
 def test_judge_routes_adapter(monkeypatch):
@@ -198,7 +198,7 @@ def test_faithfulness_parses_faithful_verdict(monkeypatch):
         ),
     )
     tracker = CostTracker()
-    v = judge_faithfulness("SRC", "analysis", judge_model="grok-4.3", tracker=tracker)
+    v = judge_faithfulness("SRC", "analysis", judge_model="grok-4.7", tracker=tracker)
     assert v is not None
     assert v.label == "faithful"
     assert v.ordinal == FAITHFULNESS_ORDINAL["faithful"] == 2
@@ -215,7 +215,7 @@ def test_faithfulness_parses_unfaithful_with_unsupported_claims(monkeypatch):
             '"rationale": "two numbers absent from the source"}'
         ),
     )
-    v = judge_faithfulness("SRC", "analysis", judge_model="grok-4.3")
+    v = judge_faithfulness("SRC", "analysis", judge_model="grok-4.7")
     assert v is not None
     assert v.label == "unfaithful"
     assert v.ordinal == 0
@@ -224,7 +224,7 @@ def test_faithfulness_parses_unfaithful_with_unsupported_claims(monkeypatch):
 
 def test_faithfulness_returns_none_on_unparseable(monkeypatch):
     monkeypatch.setattr(judge_mod, "llm_call", lambda *a, **k: _resp("no json at all"))
-    assert judge_faithfulness("s", "o", judge_model="grok-4.3") is None
+    assert judge_faithfulness("s", "o", judge_model="grok-4.7") is None
 
 
 def test_faithfulness_returns_none_when_json_object_is_malformed(monkeypatch):
@@ -232,7 +232,7 @@ def test_faithfulness_returns_none_when_json_object_is_malformed(monkeypatch):
     tracker = CostTracker()
     assert (
         judge_faithfulness(
-            "s", "o", judge_model="grok-4.3", tracker=tracker, router_config=_router_config()
+            "s", "o", judge_model="grok-4.7", tracker=tracker, router_config=_router_config()
         )
         is None
     )
@@ -244,7 +244,7 @@ def test_faithfulness_returns_none_on_unknown_label(monkeypatch):
     monkeypatch.setattr(
         judge_mod, "llm_call", lambda *a, **k: _resp('{"verdict": "mostly ok", "rationale": "x"}')
     )
-    assert judge_faithfulness("s", "o", judge_model="grok-4.3") is None
+    assert judge_faithfulness("s", "o", judge_model="grok-4.7") is None
 
 
 def test_faithfulness_routes_to_its_own_provider(monkeypatch):
@@ -256,9 +256,9 @@ def test_faithfulness_routes_to_its_own_provider(monkeypatch):
         return _resp('{"verdict": "faithful", "rationale": "x"}')
 
     monkeypatch.setattr(judge_mod, "llm_call", fake_call)
-    judge_faithfulness("s", "o", judge_model="gemini-3.1-pro")
+    judge_faithfulness("s", "o", judge_model="gemini-4-carbon")
     assert captured["provider"] == "gemini"
-    assert captured["model"] == "gemini-3.1-pro"
+    assert captured["model"] == "gemini-4-carbon"
 
 
 def test_faithfulness_prompt_is_source_anchored_and_categorical():
@@ -286,7 +286,7 @@ def test_heuristics_follow_the_output_not_the_slot(monkeypatch):
         "src",
         "cand",
         "anchor",
-        judge_model="grok-4.3",
+        judge_model="grok-4.7",
         candidate_heuristics="CAND-HEUR",
         anchor_heuristics="ANCHOR-HEUR",
     )

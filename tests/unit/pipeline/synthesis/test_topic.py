@@ -13,7 +13,7 @@ from distill.pipeline.costs import CostTracker
 from distill.pipeline.synthesis.topic import synthesize_channel, synthesize_topic
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     """Return a mock llm_call that returns a fixed LLM_Response."""
 
     def _call(config, workload_tag, prompt, **kwargs):

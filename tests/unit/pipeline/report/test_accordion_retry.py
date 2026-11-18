@@ -23,7 +23,7 @@ from distill.llm.router import LLM_Response
 def mock_config():
     """Create a mock DistillConfig."""
     config = MagicMock()
-    config.xai_model_for.return_value = "grok-4.3"
+    config.xai_model_for.return_value = "grok-4.7"
     return config
 
 
@@ -45,12 +45,12 @@ def _make_response(text: str = "Section content here") -> LLM_Response:
         text=text,
         input_tokens=100,
         output_tokens=50,
-        model="grok-4.3",
+        model="grok-4.7",
     )
 
 
 def _configure_router(mock_router_config: MagicMock) -> None:
-    mock_router_config.return_value.resolve.return_value = ("xai", "grok-4.3")
+    mock_router_config.return_value.resolve.return_value = ("xai", "grok-4.7")
 
 
 # ─── Test: Retry-then-success resets counter ─────────────────────────
@@ -250,7 +250,7 @@ def test_llmcall_logged_on_failure(
         llm_call_data = record.llm_call
         assert "error_message" in llm_call_data
         assert llm_call_data["error_message"] == "API timeout"
-        assert llm_call_data["model"] == "grok-4.3"
+        assert llm_call_data["model"] == "grok-4.7"
 
 
 @patch("distill.pipeline.report.accordion.time.sleep", return_value=None)

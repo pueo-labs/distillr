@@ -2,7 +2,9 @@
 
 Distill 0.19.56 changes the optional Gemini analysis-provider default from
 `gemini-3.6-flash` to `gemini-3.7-flash`. The global Distill default remains
-the xAI route with `grok-4.6`.
+the xAI route. The current xAI default is `grok-4.7`. See
+[migration-grok-4.7.md](migration-grok-4.7.md). The Gemini provider default in
+current releases is `gemini-3.8-flash`.
 
 ## What changes
 
@@ -16,8 +18,9 @@ the xAI route with `grok-4.6`.
 
 ## Existing configurations
 
-An explicit `DISTILL_MODEL=gemini-3.6-flash` remains valid and is not rewritten.
-To adopt the new default, run:
+In that release, an explicit `DISTILL_MODEL=gemini-3.6-flash` stayed as
+configured. Current releases rewrite `gemini-3.6-flash` and `gemini-3.7-flash`
+to `gemini-3.8-flash` before a call. The 0.19.56 adoption step was:
 
 ```bash
 distill provider set gemini gemini-3.7-flash

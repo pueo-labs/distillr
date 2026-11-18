@@ -343,13 +343,13 @@ class TestCompactBetweenPhases:
             text="Cloud-compacted output.",
             input_tokens=500,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         )
 
         config = RouterConfig(
             provider="xai",
-            fast_model="grok-4.3",
-            premium_model="grok-4.3",
+            fast_model="grok-4.7",
+            premium_model="grok-4.7",
             xai_api_key="test-key",
         )
         text = "Phase 1 output with lots of content. " * 50

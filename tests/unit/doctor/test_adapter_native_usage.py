@@ -391,7 +391,7 @@ def test_grok_json_native_usage_collects_top_level():
     record = grok_json_native_usage(
         json.dumps(
             {
-                "model": "grok-4.3",
+                "model": "grok-4.7",
                 "usage": {"input_tokens": 1200, "output_tokens": 340},
                 "request_id": "grok_req_1",
             }
@@ -431,7 +431,7 @@ def test_antigravity_json_native_usage_forces_adapter_name():
 
 def test_new_adapters_reject_missing_usage():
     with pytest.raises(AdapterNativeUsageError, match="usage not found"):
-        grok_json_native_usage('{"model":"grok-4.3"}')
+        grok_json_native_usage('{"model":"grok-4.7"}')
     with pytest.raises(AdapterNativeUsageError, match="usage not found"):
         gemini_cli_json_native_usage('{"foo":1}')
 
@@ -466,7 +466,7 @@ def test_grok_json_native_usage_rejects_bad_json():
 
 def test_grok_json_native_usage_rejects_missing_usage():
     with pytest.raises(AdapterNativeUsageError, match="usage not found"):
-        grok_json_native_usage('{"model": "grok-4.3", "foo": "bar"}')
+        grok_json_native_usage('{"model": "grok-4.7", "foo": "bar"}')
 
 
 def test_gemini_cli_json_native_usage_rejects_missing_usage():

@@ -32,7 +32,7 @@ def _attempt(*, outcome: str, attempt_id: str = "") -> LLMUsageAttempt:
     return LLMUsageAttempt(
         input_tokens=10,
         output_tokens=20,
-        model="grok-4.3",
+        model="grok-4.7",
         provider_name="",
         provider_type="",
         usage_source="conservative" if outcome == "error" else "reported",
@@ -183,7 +183,7 @@ def test_execution_uses_constructed_provider_endpoint_for_usage_and_telemetry(
             text="ok",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
         "https://hosted.example/v1",
     )
@@ -195,7 +195,7 @@ def test_execution_uses_constructed_provider_endpoint_for_usage_and_telemetry(
         lambda **kwargs: telemetry.update(kwargs),
     )
 
-    result = execute_call(_options(provider, emitted), "ollama", "grok-4.3")
+    result = execute_call(_options(provider, emitted), "ollama", "grok-4.7")
 
     assert result.provider_type == "unknown"
     assert result.usage_attempts[0].provider_type == "unknown"
@@ -301,7 +301,7 @@ def test_cloud_primary_cannot_fallback_to_unproved_ollama() -> None:
         patch("httpx.AsyncClient", factory),
         pytest.raises(RuntimeError, match="credits") as caught,
     ):
-        execute_call(options, "xai", "grok-4.3")
+        execute_call(options, "xai", "grok-4.7")
     assert "/api/chat" not in requests
     assert [
         (row.provider_name, row.provider_type)
@@ -318,13 +318,13 @@ def test_openrouter_receives_run_id_as_sticky_session_id() -> None:
             text="ok",
             input_tokens=10,
             output_tokens=20,
-            model="x-ai/grok-4.6",
+            model="x-ai/grok-4.7",
         ),
         "https://openrouter.ai/api/v1",
     )
     options = _options(provider, [])
 
-    execute_call(options, "openrouter", "x-ai/grok-4.6")
+    execute_call(options, "openrouter", "x-ai/grok-4.7")
 
     assert provider.kwargs["session_id"] == "run"
 
@@ -339,12 +339,12 @@ def test_provider_supplied_success_attempt_is_normalized_and_emitted() -> None:
         text="ok",
         input_tokens=10,
         output_tokens=20,
-        model="grok-4.3",
+        model="grok-4.7",
         usage_attempts=(supplied,),
     )
     emitted: list[LLMUsageAttempt] = []
 
-    result = execute_call(_options(_Provider(response), emitted), "xai", "grok-4.3")
+    result = execute_call(_options(_Provider(response), emitted), "xai", "grok-4.7")
 
     assert emitted == list(result.usage_attempts)
     assert result.usage_attempts[0].provider_name == "xai"
@@ -404,7 +404,7 @@ def test_attached_error_attempts_receive_distinct_ids_without_derived_duplicates
     emitted: list[LLMUsageAttempt] = []
 
     with pytest.raises(RuntimeError, match="failed") as raised:
-        execute_call(_options(_Provider(exc), emitted), "xai", "grok-4.3")
+        execute_call(_options(_Provider(exc), emitted), "xai", "grok-4.7")
 
     attached = usage_attempts_from_exception(raised.value)
     assert emitted == list(attached)
@@ -420,7 +420,7 @@ def test_existing_attempts_need_no_sink() -> None:
         text="ok",
         input_tokens=10,
         output_tokens=20,
-        model="grok-4.3",
+        model="grok-4.7",
         usage_attempts=(supplied,),
     )
     provider = _Provider(response)
@@ -430,7 +430,7 @@ def test_existing_attempts_need_no_sink() -> None:
         usage_batch_sink=None,
     )
 
-    result = execute_call(options, "xai", "grok-4.3")
+    result = execute_call(options, "xai", "grok-4.7")
 
     assert provider.calls == 1
     assert result.usage_attempts[0].attempt_id == "provider-attempt"
@@ -445,7 +445,7 @@ def test_post_response_accounting_failure_is_not_reemitted_or_rerouted() -> None
         text="paid success",
         input_tokens=20,
         output_tokens=40,
-        model="grok-4.3",
+        model="grok-4.7",
         usage_attempts=attempts,
     )
     provider = _Provider(response)
@@ -462,7 +462,7 @@ def test_post_response_accounting_failure_is_not_reemitted_or_rerouted() -> None
     )
 
     with pytest.raises(RuntimeError, match="usage ledger unavailable") as raised:
-        execute_call(options, "xai", "grok-4.3")
+        execute_call(options, "xai", "grok-4.7")
 
     assert provider.calls == 1
     assert emitted == ["attempt-1", "attempt-2"]
@@ -476,7 +476,7 @@ def test_provider_side_success_accounting_failure_records_success_telemetry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provider = _EmittingSuccessProvider(RuntimeError("unused"))
-    tracker = CostTracker(budget=0.000001)
+    tracker = CostTracker(budget=0.0005)
     telemetry: dict[str, object] = {}
     options = replace(
         _options(provider, []),
@@ -490,7 +490,7 @@ def test_provider_side_success_accounting_failure_records_success_telemetry(
     )
 
     with pytest.raises(BudgetExceededError):
-        execute_call(options, "xai", "grok-4.3")
+        execute_call(options, "xai", "grok-4.7")
 
     assert provider.calls == 1
     assert len(tracker.entries) == 1
@@ -512,13 +512,13 @@ def test_route_telemetry_falls_back_to_response_usage_without_attempt_rows(monke
         text="ok",
         input_tokens=7,
         output_tokens=9,
-        model="grok-4.3",
+        model="grok-4.7",
     )
 
     call_execution._record_route(
         _options(_Provider(response), []),
         "xai",
-        "grok-4.3",
+        "grok-4.7",
         response,
         "success",
         "",
@@ -544,12 +544,12 @@ def test_route_telemetry_retains_provider_reported_cost_and_upstream(monkeypatch
         text="ok",
         input_tokens=7,
         output_tokens=9,
-        model="x-ai/grok-4.6",
+        model="x-ai/grok-4.7",
         billed_cost_usd=0.000123,
         upstream_provider="Example Cloud",
     )
 
-    execute_call(_options(_Provider(response), []), "openrouter", "x-ai/grok-4.6")
+    execute_call(_options(_Provider(response), []), "openrouter", "x-ai/grok-4.7")
 
     assert captured["billed_cost_usd"] == pytest.approx(0.000123)
     assert captured["upstream_provider"] == "Example Cloud"
@@ -634,7 +634,7 @@ def test_batch_accounting_failure_is_not_retried() -> None:
             text="paid success",
             input_tokens=10,
             output_tokens=20,
-            model="grok-4.3",
+            model="grok-4.7",
             usage_attempts=(attempt,),
         )
     )
@@ -651,7 +651,7 @@ def test_batch_accounting_failure_is_not_retried() -> None:
     )
 
     with pytest.raises(RuntimeError, match="batch ledger unavailable"):
-        execute_call(options, "xai", "grok-4.3")
+        execute_call(options, "xai", "grok-4.7")
 
     assert provider.calls == 1
     assert len(batches) == 1
@@ -727,7 +727,7 @@ def test_fallback_success_accounting_failure_surfaces_without_masking_or_replay(
     )
 
     with pytest.raises(RuntimeError, match="fallback usage ledger unavailable") as raised:
-        execute_call(options, "xai", "grok-4.3")
+        execute_call(options, "xai", "grok-4.7")
 
     assert primary.calls == 1
     assert fallback.calls == 1

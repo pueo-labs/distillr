@@ -69,7 +69,7 @@ def test_llm_expand_learning_queries_parses_fenced_json_and_records_usage(config
             text='```json\n{"queries":["alpha","beta"]}\n```',
             input_tokens=13,
             output_tokens=9,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     tracker = CostTracker()
@@ -118,7 +118,7 @@ def test_llm_expand_paper_queries_parses_response_and_records_usage(config, monk
             text='{"queries":["paper-a","paper-b"]}',
             input_tokens=13,
             output_tokens=9,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     tracker = CostTracker()

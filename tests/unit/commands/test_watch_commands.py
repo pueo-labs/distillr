@@ -176,7 +176,7 @@ class TestWatchAdd:
                     call_type="watch_instructions",
                     prompt_tokens=100,
                     completion_tokens=25,
-                    model="grok-4.3",
+                    model="grok-4.7",
                 )
             )
             return "Focus on weekly deal roundups"

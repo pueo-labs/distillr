@@ -390,7 +390,7 @@ def test_missing_advertised_repeat_is_not_skipped_by_payload_deduplication(
 @pytest.mark.parametrize(
     "overrides",
     [
-        {"provider": "xai", "model": "grok-4.6"},
+        {"provider": "xai", "model": "grok-4.7"},
         {"provider": "lmstudio"},
         {"cost_mode": "paid-ok"},
         {"fallback_provider": "gemini"},

@@ -40,6 +40,9 @@ def validate_openrouter_key(
         return ("skipped", blocked)
     if not model:
         return _validate_key_metadata(api_key)
+    from distill.llm.model_policy import apply_configured_model
+
+    model = apply_configured_model(model)
 
     projection = _probe_usage(model=model, outcome="authorized")
     try:

@@ -23,7 +23,7 @@ def _model_available(monkeypatch):
     monkeypatch.setenv("DISTILL_MODEL", "qwen3.5:27b")
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 

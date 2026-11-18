@@ -436,7 +436,7 @@ def test_process_learning_selection_propagates_budget_stop_from_every_phase(conf
                 TokenUsage(
                     prompt_tokens=1_000,
                     completion_tokens=100,
-                    model="grok-4.3",
+                    model="grok-4.7",
                     call_type=name,
                 )
             )

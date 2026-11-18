@@ -64,7 +64,7 @@ def _offline_key_validation(monkeypatch):
 
     def _fake(provider, config, *, model=""):
         if provider == "xai":
-            return ("ok", model or "grok-4.3")
+            return ("ok", model or "grok-4.7")
         return ("not_set", "")
 
     with patch("distill.commands.doctor._doctor_validate_key", side_effect=_fake):
@@ -166,7 +166,7 @@ class TestJsonCosts:
                             "timestamp": "2026-03-12T12:00:00",
                             "workload_tag": "analysis",
                             "call_type": "small",
-                            "model": "grok-4.3",
+                            "model": "grok-4.7",
                             "provider_name": "xai",
                             "provider_type": "cloud",
                             "input_tokens": 100,
@@ -180,7 +180,7 @@ class TestJsonCosts:
                             "timestamp": "2026-03-12T12:01:00",
                             "workload_tag": "report",
                             "call_type": "qa",
-                            "model": "grok-4.3",
+                            "model": "grok-4.7",
                             "provider_name": "xai",
                             "provider_type": "cloud",
                             "input_tokens": 700,
@@ -267,7 +267,7 @@ class TestJsonDoctor:
 
         def _fake(provider, config, *, model=""):
             if provider == "xai":
-                return ("ok", model or "grok-4.3")
+                return ("ok", model or "grok-4.7")
             if provider == "gemini":
                 return ("invalid", "400 API_KEY_INVALID")
             return ("not_set", "")
@@ -289,7 +289,7 @@ class TestJsonDoctor:
         """--json doctor carries a top-level `ready` verdict and a browser check."""
 
         def _ok(provider, config, *, model=""):
-            return ("ok", model or "grok-4.3") if provider == "xai" else ("not_set", "")
+            return ("ok", model or "grok-4.7") if provider == "xai" else ("not_set", "")
 
         with (
             patch("distill.commands.doctor.get_config", return_value=mock_config),

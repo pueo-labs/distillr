@@ -50,15 +50,15 @@ def test_run_model_eval_scores_costs_and_judges(monkeypatch):
     calls: list = []
     rows = run_model_eval(
         "paper",
-        ["grok-4.3", "qwen3.5:27b", "adapter:grok-4.3"],
-        anchor="grok-4.3",
-        judge_model="grok-4.3",
+        ["grok-4.7", "qwen3.5:27b", "adapter:grok-4.7"],
+        anchor="grok-4.7",
+        judge_model="grok-4.7",
         analyze=_fake_analyze_factory(calls),
     )
     # 3 paper fixtures x 3 models (incl adapter) = 9 rows; analysis ran for each.
     assert len(rows) == 9
     assert len(calls) == 9
-    anchor_rows = [r for r in rows if r.model == "grok-4.3"]
+    anchor_rows = [r for r in rows if r.model == "grok-4.7"]
     cand_rows = [r for r in rows if r.model == "qwen3.5:27b"]
     assert all(r.pairwise_winrate is None for r in anchor_rows)  # anchor not judged vs itself
     assert all(r.pairwise_winrate == 0.6 for r in cand_rows)
@@ -86,9 +86,9 @@ def test_faithfulness_judged_for_every_model_including_anchor(monkeypatch):
         tracker.record(TokenUsage(prompt_tokens=100, completion_tokens=50, model=rc.model))
         return "BAD output" if rc.model == "cand" else _OUTPUT
 
-    rows = run_model_eval("paper", ["grok-4.3", "cand"], anchor="grok-4.3", analyze=analyze)
+    rows = run_model_eval("paper", ["grok-4.7", "cand"], anchor="grok-4.7", analyze=analyze)
     assert len(seen) == 6  # 3 fixtures x 2 models — anchor judged too
-    anchor_rows = [r for r in rows if r.model == "grok-4.3"]
+    anchor_rows = [r for r in rows if r.model == "grok-4.7"]
     cand_rows = [r for r in rows if r.model == "cand"]
     assert all(r.faithfulness == "faithful" for r in anchor_rows)
     assert all(r.faithfulness == "unfaithful" for r in cand_rows)
@@ -104,7 +104,7 @@ def test_ask_faithfulness_judge_receives_question_and_sources(monkeypatch):
 
     monkeypatch.setattr(harness_mod, "judge_faithfulness", fake_faith)
 
-    rows = run_model_eval("ask", ["grok-4.3"], anchor="grok-4.3", analyze=_fake_analyze_factory([]))
+    rows = run_model_eval("ask", ["grok-4.7"], anchor="grok-4.7", analyze=_fake_analyze_factory([]))
 
     assert len(rows) == len(load_fixtures("ask"))
     assert seen_sources
@@ -114,7 +114,7 @@ def test_ask_faithfulness_judge_receives_question_and_sources(monkeypatch):
 
 
 def test_risk_patterns_flow_into_eval_rows():
-    rows = run_model_eval("ask", ["grok-4.3"], anchor="grok-4.3", analyze=_fake_analyze_factory([]))
+    rows = run_model_eval("ask", ["grok-4.7"], anchor="grok-4.7", analyze=_fake_analyze_factory([]))
 
     by_fixture = {row.fixture_id: row for row in rows}
     assert by_fixture["ask-false-premise"].risk_patterns == (
@@ -135,7 +135,7 @@ def test_faithfulness_not_judged_when_no_judge_or_errored(monkeypatch):
 
     monkeypatch.setattr(harness_mod, "judge_faithfulness", fake_faith)
     rows = run_model_eval(
-        "paper", ["grok-4.3"], anchor="grok-4.3", judge_model="", analyze=_fake_analyze_factory([])
+        "paper", ["grok-4.7"], anchor="grok-4.7", judge_model="", analyze=_fake_analyze_factory([])
     )
     assert called["n"] == 0  # empty judge_model -> no faithfulness judging
     assert all(r.faithfulness == "" for r in rows)
@@ -149,11 +149,11 @@ def test_cache_hit_skips_reanalysis(tmp_path, monkeypatch):
     )
     calls: list = []
     fake = _fake_analyze_factory(calls)
-    run_model_eval("paper", ["grok-4.3"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake)
+    run_model_eval("paper", ["grok-4.7"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake)
     assert len(calls) == 3
     calls.clear()
     second = run_model_eval(
-        "paper", ["grok-4.3"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake
+        "paper", ["grok-4.7"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake
     )
     assert calls == []  # analysis served from cache
     assert all(r.cached for r in second)
@@ -265,7 +265,7 @@ def test_lmstudio_explicit_unsupported_think_cannot_reuse_cached_completion(
     assert len(calls) == 1
 
 
-@pytest.mark.parametrize("model", ["gemma4:e2b", "grok-4.6"])
+@pytest.mark.parametrize("model", ["gemma4:e2b", "grok-4.7"])
 def test_reasoning_effort_requests_have_distinct_analysis_cache_identity(
     tmp_path, monkeypatch, model
 ):
@@ -308,17 +308,17 @@ def test_invalid_local_control_records_refusal_without_aborting_other_models(mon
     calls = []
     rows = run_model_eval(
         "paper",
-        ["grok-4.6", "gemma4:e2b"],
-        anchor="grok-4.6",
+        ["grok-4.7", "gemma4:e2b"],
+        anchor="grok-4.7",
         judge_model="",
         analyze=_fake_analyze_factory(calls),
     )
     local = [row for row in rows if row.model == "gemma4:e2b"]
-    cloud = [row for row in rows if row.model == "grok-4.6"]
+    cloud = [row for row in rows if row.model == "grok-4.7"]
     assert local and all("LocalReasoningConfigError" in row.error for row in local)
     assert all(row.output_tokens == 0 and row.cost == 0 for row in local)
     assert cloud and all(not row.error for row in cloud)
-    assert {model for _, model in calls} == {"grok-4.6"}
+    assert {model for _, model in calls} == {"grok-4.7"}
 
 
 def test_malformed_cache_entry_recomputes(tmp_path, monkeypatch):
@@ -331,14 +331,14 @@ def test_malformed_cache_entry_recomputes(tmp_path, monkeypatch):
     )
     calls: list = []
     fake = _fake_analyze_factory(calls)
-    run_model_eval("paper", ["grok-4.3"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake)
+    run_model_eval("paper", ["grok-4.7"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake)
     assert len(calls) == 3
     # Poison every cached analysis row: valid JSON, missing the "output" field.
     for p in tmp_path.glob("*.json"):
         p.write_text('{"unexpected": "shape"}', encoding="utf-8")
     calls.clear()
     rows = run_model_eval(
-        "paper", ["grok-4.3"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake
+        "paper", ["grok-4.7"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake
     )
     assert len(calls) == 3  # recomputed, did not serve the poisoned cache
     assert all(not r.cached for r in rows)
@@ -388,8 +388,8 @@ def test_judge_caches_are_bound_to_exact_outputs(tmp_path, monkeypatch):
     monkeypatch.setattr(harness_mod, "judge_faithfulness", faithful)
     run_model_eval(
         "paper",
-        ["grok-4.3", "candidate"],
-        anchor="grok-4.3",
+        ["grok-4.7", "candidate"],
+        anchor="grok-4.7",
         cache_dir=tmp_path,
         analyze=analyze,
     )
@@ -404,8 +404,8 @@ def test_judge_caches_are_bound_to_exact_outputs(tmp_path, monkeypatch):
     output["value"] = _OUTPUT + " SECOND"
     rows = run_model_eval(
         "paper",
-        ["grok-4.3", "candidate"],
-        anchor="grok-4.3",
+        ["grok-4.7", "candidate"],
+        anchor="grok-4.7",
         cache_dir=tmp_path,
         analyze=analyze,
     )
@@ -434,8 +434,8 @@ def test_invalid_judge_cache_values_are_recomputed(tmp_path, monkeypatch):
     monkeypatch.setattr(harness_mod, "judge_faithfulness", faithful)
     run_model_eval(
         "paper",
-        ["grok-4.3", "candidate"],
-        anchor="grok-4.3",
+        ["grok-4.7", "candidate"],
+        anchor="grok-4.7",
         cache_dir=tmp_path,
         analyze=_fake_analyze_factory([]),
     )
@@ -449,8 +449,8 @@ def test_invalid_judge_cache_values_are_recomputed(tmp_path, monkeypatch):
 
     rows = run_model_eval(
         "paper",
-        ["grok-4.3", "candidate"],
-        anchor="grok-4.3",
+        ["grok-4.7", "candidate"],
+        anchor="grok-4.7",
         cache_dir=tmp_path,
         analyze=_fake_analyze_factory([]),
     )
@@ -463,7 +463,7 @@ def test_invalid_judge_cache_values_are_recomputed(tmp_path, monkeypatch):
 def test_estimate_is_fixture_aware_and_modest():
     fixtures = load_fixtures("paper")
     est = estimate_eval_cost(
-        fixtures, ["grok-4.3", "qwen3.5:27b"], anchor="grok-4.3", judge_model="grok-4.3"
+        fixtures, ["grok-4.7", "qwen3.5:27b"], anchor="grok-4.7", judge_model="grok-4.7"
     )
     # Small fixtures -> a few cents, not the multi-dollar production-stage figure.
     assert 0.0 < est < 0.50
@@ -482,10 +482,10 @@ def test_analysis_failure_degrades_gracefully(monkeypatch):
         )
         return _OUTPUT
 
-    rows = run_model_eval("paper", ["grok-4.3", "bad-model"], anchor="grok-4.3", analyze=flaky)
+    rows = run_model_eval("paper", ["grok-4.7", "bad-model"], anchor="grok-4.7", analyze=flaky)
     assert len(rows) == 6  # 3 fixtures x 2 models, no crash
     bad = [r for r in rows if r.model == "bad-model"]
-    good = [r for r in rows if r.model == "grok-4.3"]
+    good = [r for r in rows if r.model == "grok-4.7"]
     assert all(r.error for r in bad)
     assert all(not r.error for r in good)
 
@@ -502,10 +502,10 @@ def test_local_model_priced_at_zero(monkeypatch):
         return _OUTPUT
 
     rows = run_model_eval(
-        "paper", ["grok-4.3", "qwen3.5:27b", "adapter:grok-4.3"], anchor="grok-4.3", analyze=fake
+        "paper", ["grok-4.7", "qwen3.5:27b", "adapter:grok-4.7"], anchor="grok-4.7", analyze=fake
     )
-    assert all(r.cost == 0.0 for r in rows if r.model in ("qwen3.5:27b", "adapter:grok-4.3"))
-    assert all(r.cost > 0 for r in rows if r.model == "grok-4.3")
+    assert all(r.cost == 0.0 for r in rows if r.model in ("qwen3.5:27b", "adapter:grok-4.7"))
+    assert all(r.cost > 0 for r in rows if r.model == "grok-4.7")
 
 
 def test_estimate_local_only_is_free():
@@ -523,8 +523,8 @@ def test_estimate_refuses_remote_local_adapter_without_price_contract(
 ):
     monkeypatch.setenv("OLLAMA_BASE_URL", "https://hosted.example/v1")
     fixtures = load_fixtures("paper")
-    models = ["qwen3.5:27b"] if remote_role == "candidate" else ["grok-4.3"]
-    judge = "grok-4.3" if remote_role == "candidate" else "qwen3.5:27b"
+    models = ["qwen3.5:27b"] if remote_role == "candidate" else ["grok-4.7"]
+    judge = "grok-4.7" if remote_role == "candidate" else "qwen3.5:27b"
 
     with pytest.raises(harness_mod.UnpricedEvalRouteError, match="external price is unknown"):
         estimate_eval_cost(fixtures, models, anchor=models[0], judge_model=judge)
@@ -536,8 +536,8 @@ def test_estimate_accepts_registered_openrouter_slug_and_rejects_unknown() -> No
     assert (
         estimate_eval_cost(
             fixtures,
-            ["x-ai/grok-4.6"],
-            anchor="x-ai/grok-4.6",
+            ["x-ai/grok-4.7"],
+            anchor="x-ai/grok-4.7",
             judge_model="",
         )
         > 0
@@ -604,7 +604,7 @@ def test_analysis_uses_run_tracker_budget_for_pre_call_authorization() -> None:
         raise AssertionError("authorization should have refused")
 
     analysis = harness_mod._analyze(
-        "x-ai/grok-4.6",
+        "x-ai/grok-4.7",
         fixture,
         analyze,
         run_tracker,
@@ -620,7 +620,7 @@ def test_estimate_adapter_plan_quota_is_free():
     # Plan-quota adapter routes (e.g. grok build, gemini cli under quota) are no-incremental like local.
     fixtures = load_fixtures("paper")
     est = estimate_eval_cost(
-        fixtures, ["adapter:grok-4.3"], anchor="adapter:grok-4.3", judge_model="qwen3.5:27b"
+        fixtures, ["adapter:grok-4.7"], anchor="adapter:grok-4.7", judge_model="qwen3.5:27b"
     )
     assert est == 0.0
 
@@ -628,7 +628,7 @@ def test_estimate_adapter_plan_quota_is_free():
 def test_adapter_model_requires_custom_analyzer_with_default_runner():
     # The default runner must not synthesize adapter output because that could
     # become false eval evidence for route graduation.
-    rows = run_model_eval("paper", ["adapter:grok-4.3"], anchor="adapter:grok-4.3")
+    rows = run_model_eval("paper", ["adapter:grok-4.7"], anchor="adapter:grok-4.7")
     assert len(rows) == 3  # paper fixtures
     assert all(r.cost == 0.0 for r in rows)
     assert all(r.error == "adapter eval requires a live adapter analyzer" for r in rows)
@@ -659,17 +659,17 @@ def test_failed_judge_verdict_is_not_cached(tmp_path, monkeypatch):
     monkeypatch.setattr(harness_mod, "judge_pairwise", judge)
     fake = _fake_analyze_factory([])
     r1 = run_model_eval(
-        "paper", ["grok-4.3", "qwen3.5:27b"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake
+        "paper", ["grok-4.7", "qwen3.5:27b"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake
     )
     assert all(row.pairwise_winrate is None for row in r1 if row.model == "qwen3.5:27b")
     r2 = run_model_eval(
-        "paper", ["grok-4.3", "qwen3.5:27b"], anchor="grok-4.3", cache_dir=tmp_path, analyze=fake
+        "paper", ["grok-4.7", "qwen3.5:27b"], anchor="grok-4.7", cache_dir=tmp_path, analyze=fake
     )
     # Analyses are cached, but the failed verdict re-ran and now succeeds.
     assert all(row.pairwise_winrate == 0.7 for row in r2 if row.model == "qwen3.5:27b")
 
 
 def test_provider_inference():
-    assert harness_mod.provider_for_model("grok-4.3") == "xai"
-    assert harness_mod.provider_for_model("x-ai/grok-4.6") == "openrouter"
+    assert harness_mod.provider_for_model("grok-4.7") == "xai"
+    assert harness_mod.provider_for_model("x-ai/grok-4.7") == "openrouter"
     assert harness_mod.provider_for_model("qwen3.5:27b") == "ollama"

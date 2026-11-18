@@ -4,7 +4,6 @@ import json
 import math
 import threading
 from contextlib import contextmanager
-from datetime import date
 
 import pytest
 
@@ -65,7 +64,7 @@ def test_cost_tracker_summary_and_formatting():
         TokenUsage(
             prompt_tokens=1000,
             completion_tokens=500,
-            model="grok-4-1-fast-reasoning",
+            model="grok-4.7",
             call_type="pass1",
         )
     )
@@ -85,7 +84,7 @@ def test_conservative_usage_provenance_reaches_cost_summary():
         text="bounded",
         input_tokens=2048,
         output_tokens=512,
-        model="grok-4.3",
+        model="grok-4.7",
         usage_source="conservative",
     )
 
@@ -101,7 +100,7 @@ def test_save_run_log_writes_breakdown(tmp_path):
         TokenUsage(
             prompt_tokens=100,
             completion_tokens=50,
-            model="grok-4-1-fast-reasoning",
+            model="grok-4.7",
             call_type="pass1",
         )
     )
@@ -109,7 +108,7 @@ def test_save_run_log_writes_breakdown(tmp_path):
         TokenUsage(
             prompt_tokens=40,
             completion_tokens=20,
-            model="grok-4-1-fast-reasoning",
+            model="grok-4.7",
             call_type="pass1",
         )
     )
@@ -214,11 +213,11 @@ def test_routed_video_workflow_prices_mixed_local_and_cloud_routes():
             provider="ollama",
             fast_model="qwen2.5:14b",
             synthesis_provider="anthropic",
-            synthesis_model="claude-sonnet-4",
+            synthesis_model="claude-sonnet-5-5",
         ),
     )
 
-    assert estimate == estimate_stage_cost("synthesis", model="claude-sonnet-4")
+    assert estimate == estimate_stage_cost("synthesis", model="claude-sonnet-5-5")
 
 
 def test_routed_claim_extraction_prices_the_concepts_route():
@@ -230,11 +229,11 @@ def test_routed_claim_extraction_prices_the_concepts_route():
             provider="ollama",
             fast_model="qwen2.5:14b",
             concepts_provider="anthropic",
-            concepts_model="claude-sonnet-4",
+            concepts_model="claude-sonnet-5-5",
         ),
     )
 
-    assert estimate == 2 * estimate_stage_cost("claim_extraction", model="claude-sonnet-4")
+    assert estimate == 2 * estimate_stage_cost("claim_extraction", model="claude-sonnet-5-5")
 
 
 def test_routed_video_workflow_prices_eligible_metered_fallback():
@@ -246,11 +245,11 @@ def test_routed_video_workflow_prices_eligible_metered_fallback():
             provider="ollama",
             fast_model="qwen2.5:14b",
             fallback_provider="xai",
-            fallback_model="grok-4.3",
+            fallback_model="grok-4.7",
         ),
     )
 
-    assert estimate == estimate_stage_cost("video_full", model="grok-4.3")
+    assert estimate == estimate_stage_cost("video_full", model="grok-4.7")
 
 
 def test_routed_video_workflow_ignores_blocked_metered_fallback():
@@ -263,7 +262,7 @@ def test_routed_video_workflow_ignores_blocked_metered_fallback():
             fast_model="qwen2.5:14b",
             cost_mode="no-metered",
             fallback_provider="xai",
-            fallback_model="grok-4.3",
+            fallback_model="grok-4.7",
         ),
     )
 
@@ -273,7 +272,7 @@ def test_routed_video_workflow_ignores_blocked_metered_fallback():
 def test_routed_video_workflow_includes_metered_report_generation():
     from distill.llm.router import RouterConfig
 
-    router_config = RouterConfig(provider="xai", fast_model="grok-4.3")
+    router_config = RouterConfig(provider="xai", fast_model="grok-4.7")
 
     estimate = estimate_routed_video_workflow_cost(
         full_videos=1,
@@ -282,9 +281,9 @@ def test_routed_video_workflow_includes_metered_report_generation():
     )
 
     expected = (
-        estimate_stage_cost("video_full", model="grok-4.3")
+        estimate_stage_cost("video_full", model="grok-4.7")
         + deep_research_query_cost()
-        + max(estimate_stage_cost("synthesis", model="grok-4.3"), ACCORDION_GROK_ESTIMATE)
+        + max(estimate_stage_cost("synthesis", model="grok-4.7"), ACCORDION_GROK_ESTIMATE)
     )
     assert estimate == expected
 
@@ -305,7 +304,7 @@ def test_estimate_run_cost_includes_routed_metered_accordion_generation():
         0,
         0,
         accordion=True,
-        router_config=RouterConfig(provider="xai", fast_model="grok-4.3"),
+        router_config=RouterConfig(provider="xai", fast_model="grok-4.7"),
     )
 
     assert f"generation ${ACCORDION_GROK_ESTIMATE:.2f}" in text
@@ -364,11 +363,11 @@ def test_routed_nonvideo_estimates_keep_metered_workload_overrides():
         provider="ollama",
         fast_model="qwen2.5:14b",
         synthesis_provider="anthropic",
-        synthesis_model="claude-sonnet-4",
+        synthesis_model="claude-sonnet-5-5",
         qa_provider="anthropic",
-        qa_model="claude-sonnet-4",
+        qa_model="claude-sonnet-5-5",
         site_provider="anthropic",
-        site_model="claude-sonnet-4",
+        site_model="claude-sonnet-5-5",
     )
 
     assert estimate_synthesis_workflow_cost(router_config=rc) > 0
@@ -383,11 +382,11 @@ def test_paper_estimate_follows_site_route_over_global_provider():
         provider="ollama",
         fast_model="qwen2.5:14b",
         site_provider="anthropic",
-        site_model="claude-sonnet-4",
+        site_model="claude-sonnet-5-5",
     )
     local_site = RouterConfig(
         provider="xai",
-        fast_model="grok-4.3",
+        fast_model="grok-4.7",
         site_provider="ollama",
         site_model="qwen2.5:14b",
     )
@@ -426,17 +425,17 @@ def test_site_estimate_routes_page_and_synthesis_work_through_site_override():
 
     local_site = RouterConfig(
         provider="xai",
-        fast_model="grok-4.3",
+        fast_model="grok-4.7",
         site_provider="ollama",
         site_model="qwen2.5:14b",
         synthesis_provider="anthropic",
-        synthesis_model="claude-sonnet-4",
+        synthesis_model="claude-sonnet-5-5",
     )
     metered_site = RouterConfig(
         provider="ollama",
         fast_model="qwen2.5:14b",
         site_provider="anthropic",
-        site_model="claude-sonnet-4",
+        site_model="claude-sonnet-5-5",
         synthesis_provider="ollama",
         synthesis_model="qwen2.5:14b",
     )
@@ -504,13 +503,13 @@ def test_cost_tracker_uses_model_specific_pricing():
         TokenUsage(
             prompt_tokens=1_000_000,
             completion_tokens=1_000_000,
-            model="grok-4.20",
+            model="grok-4.7",
             call_type="site_page",
         )
     )
 
-    assert tracker.total_grok_cost == 7.5
-    assert tracker.summary_dict()["by_model"]["grok-4.20"]["calls"] == 1
+    assert tracker.total_grok_cost == 16.0
+    assert tracker.summary_dict()["by_model"]["grok-4.7"]["calls"] == 1
 
 
 def test_openrouter_reported_cost_overrides_static_token_estimate():
@@ -519,7 +518,7 @@ def test_openrouter_reported_cost_overrides_static_token_estimate():
         TokenUsage(
             prompt_tokens=1_000_000,
             completion_tokens=1_000_000,
-            model="x-ai/grok-4.6",
+            model="x-ai/grok-4.7",
             provider_name="openrouter",
             provider_type="cloud",
             billed_cost_usd=0.125,
@@ -569,7 +568,7 @@ def test_cost_tracker_applies_long_context_rate_per_provider_call():
         TokenUsage(
             prompt_tokens=200_000,
             completion_tokens=100_000,
-            model="grok-4.6",
+            model="grok-4.7",
             call_type="synthesis",
         )
     )
@@ -577,12 +576,10 @@ def test_cost_tracker_applies_long_context_rate_per_provider_call():
     assert tracker.total_grok_cost == 2.0
 
 
-def test_anthropic_sonnet5_uses_intro_pricing(monkeypatch: pytest.MonkeyPatch):
+def test_anthropic_sonnet55_uses_flat_pricing():
     import distill.llm.cost as cost_mod
 
-    monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2026, 8, 13))
-
-    assert cost_mod.compute_cost("claude-sonnet-5", 1_000_000, 1_000_000) == 12.0
+    assert cost_mod.compute_cost("claude-sonnet-5-5", 1_000_000, 1_000_000) == 12.0
 
 
 def test_cost_tracker_distinguishes_local_from_unproven_agent_usage():
@@ -733,7 +730,7 @@ def test_cost_tracker_normalizes_oversized_public_usage_without_overflow():
         TokenUsage(
             prompt_tokens=10**400,
             completion_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
             provider_name="xai",
             provider_type="cloud",
         )
@@ -765,10 +762,10 @@ def test_cost_tracker_budget_exceeded_raises_on_record():
     from distill.pipeline.costs import BudgetExceededError, CostTracker, TokenUsage
 
     tracker = CostTracker(budget=0.001)
-    tracker.record(TokenUsage(prompt_tokens=1, completion_tokens=1, model="grok-4.3"))
+    tracker.record(TokenUsage(prompt_tokens=1, completion_tokens=1, model="grok-4.7"))
 
     with pytest.raises(BudgetExceededError):
-        tracker.record(TokenUsage(prompt_tokens=100000, completion_tokens=100000, model="grok-4.3"))
+        tracker.record(TokenUsage(prompt_tokens=100000, completion_tokens=100000, model="grok-4.7"))
 
 
 def test_route_class_covers_included_plan_and_no_metered():
@@ -845,7 +842,7 @@ def test_save_run_log_preview_suffixes_command(tmp_path):
         TokenUsage(
             prompt_tokens=200,
             completion_tokens=80,
-            model="grok-4-1-fast-reasoning",
+            model="grok-4.7",
             call_type="discover_plan",
         )
     )
@@ -866,7 +863,7 @@ def test_save_run_log_default_does_not_suffix(tmp_path):
         TokenUsage(
             prompt_tokens=100,
             completion_tokens=50,
-            model="grok-4-1-fast-reasoning",
+            model="grok-4.7",
             call_type="paper",
         )
     )
@@ -887,7 +884,7 @@ def test_save_run_log_stamps_full_precision_reserved_profile_receipt(tmp_path, m
         TokenUsage(
             prompt_tokens=1,
             completion_tokens=0,
-            model="grok-4-1-fast-non-reasoning",
+            model="grok-4.7",
             call_type="analysis",
         )
     )
@@ -897,9 +894,9 @@ def test_save_run_log_stamps_full_precision_reserved_profile_receipt(tmp_path, m
     entry = json.loads(
         (tmp_path / ".distill" / "cost_log.jsonl").read_text(encoding="utf-8").strip()
     )
-    assert entry["actual_cost"] == 0.0
+    assert entry["actual_cost"] == pytest.approx(0.000002)
     assert entry["profile_receipt_id"] == receipt_id
-    assert entry["profile_receipt_cost_usd"] == pytest.approx(0.0000001)
+    assert entry["profile_receipt_cost_usd"] == pytest.approx(0.000002)
     assert len(entry["profile_receipt_tracker_id"]) == 32
 
 
@@ -943,18 +940,18 @@ def test_costs_pricing_delegates_to_llm_cost():
         TokenUsage(
             prompt_tokens=1_000_000,
             completion_tokens=1_000_000,
-            model="grok-4.3",
+            model="grok-4.7",
             call_type="analysis",
         )
     )
 
-    expected = compute_cost("grok-4.3", 1_000_000, 1_000_000)
+    expected = compute_cost("grok-4.7", 1_000_000, 1_000_000)
     assert tracker.total_grok_cost == expected
 
     # Verify the pricing dict is the same object
-    assert "grok-4.3" in LLM_PRICING
-    assert LLM_PRICING["grok-4.3"]["input"] == 1.25
-    assert LLM_PRICING["grok-4.3"]["output"] == 2.50
+    assert "grok-4.7" in LLM_PRICING
+    assert LLM_PRICING["grok-4.7"]["input"] == 2.00
+    assert LLM_PRICING["grok-4.7"]["output"] == 6.00
 
 
 def test_projected_next_run_cost():
@@ -1116,7 +1113,7 @@ def test_cost_anomaly_warnings_media_dedup_and_non_media_skip():
         ),
         _anomaly_row("video", 1.0, timestamp="2026-06-01T09:00:00", model="grok-imagine-image"),
         _anomaly_row(
-            "report", 2.0, timestamp="2026-06-02T00:00:00", by_model={"grok-4.3": {"calls": 1}}
+            "report", 2.0, timestamp="2026-06-02T00:00:00", by_model={"grok-4.7": {"calls": 1}}
         ),
         _anomaly_row(
             "video",
@@ -1130,7 +1127,7 @@ def test_cost_anomaly_warnings_media_dedup_and_non_media_skip():
     joined = " ".join(str(w["message"]) for w in media)
     assert len(media) == 2  # one per date; the same-date duplicate is deduped
     assert "grok-imagine-image" in joined
-    assert "grok-4.3" not in joined  # non-media model never warned
+    assert "grok-4.7" not in joined  # non-media model never warned
 
 
 def test_cost_anomaly_warnings_respect_limit_after_media():
@@ -1334,7 +1331,7 @@ def test_save_run_log_writes_to_ops_dir(tmp_path):
     """save_run_log writes to <log_dir>/.distill/cost_log.jsonl."""
     tracker = CostTracker()
     tracker.record(
-        TokenUsage(prompt_tokens=100, completion_tokens=50, model="grok-4.3", call_type="test")
+        TokenUsage(prompt_tokens=100, completion_tokens=50, model="grok-4.7", call_type="test")
     )
 
     save_run_log(tmp_path, "test_cmd", tracker)
@@ -1411,7 +1408,7 @@ def test_save_run_log_migration_helper(tmp_path):
 
     tracker = CostTracker()
     tracker.record(
-        TokenUsage(prompt_tokens=50, completion_tokens=25, model="grok-4.3", call_type="test")
+        TokenUsage(prompt_tokens=50, completion_tokens=25, model="grok-4.7", call_type="test")
     )
 
     save_run_log(tmp_path, "new_entry", tracker)
@@ -1514,7 +1511,7 @@ def test_save_run_log_no_migration_when_new_exists(tmp_path):
 
     tracker = CostTracker()
     tracker.record(
-        TokenUsage(prompt_tokens=50, completion_tokens=25, model="grok-4.3", call_type="test")
+        TokenUsage(prompt_tokens=50, completion_tokens=25, model="grok-4.7", call_type="test")
     )
 
     save_run_log(tmp_path, "append", tracker)
@@ -1591,7 +1588,7 @@ def test_token_usage_authorization_refuses_without_ledger_row():
     projected = TokenUsage(
         prompt_tokens=1_024,
         completion_tokens=5,
-        model="grok-4.3",
+        model="grok-4.7",
         provider_name="xai",
         provider_type="cloud",
         usage_source="conservative",
@@ -1652,7 +1649,7 @@ def test_unpriced_cloud_model_on_adapter_name_is_unavailable_not_grok():
         TokenUsage(
             prompt_tokens=1_000_000,
             completion_tokens=1_000_000,
-            model="gpt-5.1-codex",
+            model="codex-unpriced",
             provider_name="codex",
             provider_type="cloud",
         )
@@ -1695,9 +1692,9 @@ def test_budgeted_deep_research_chat_row_fails_closed():
 
 
 def test_token_usage_authorization_includes_existing_spend_without_mutation():
-    tracker = CostTracker(budget=0.003)
-    existing = TokenUsage(prompt_tokens=1_000, model="grok-4.3")
-    projected = TokenUsage(prompt_tokens=1_000, model="grok-4.3")
+    tracker = CostTracker(budget=0.005)
+    existing = TokenUsage(prompt_tokens=1_000, model="grok-4.7")
+    projected = TokenUsage(prompt_tokens=1_000, model="grok-4.7")
     tracker.record(existing)
 
     tracker.authorize_token_usage(projected)
@@ -1733,7 +1730,7 @@ def test_budget_reservation_consumes_recorded_cost_before_next_authorization():
     tracker = CostTracker(budget=0.003)
 
     with tracker.reserve_budget(0.002):
-        tracker.record(TokenUsage(prompt_tokens=1_000, model="grok-4.5"))
+        tracker.record(TokenUsage(prompt_tokens=1_000, model="grok-4.7"))
         # The $0.002 actual row consumes the reservation. A
         # second worker can reserve the genuinely remaining headroom instead
         # of double-counting both actual and projected cost.
@@ -1748,7 +1745,7 @@ def test_nested_attempt_reservation_reuses_outer_headroom_and_consumes_it():
     attempt = LLMUsageAttempt(
         input_tokens=1_000,
         output_tokens=0,
-        model="grok-4.5",
+        model="grok-4.7",
         provider_name="xai",
         provider_type="cloud",
         usage_source="conservative",
@@ -1800,13 +1797,13 @@ def test_authorization_counts_other_reservations_and_own_remaining_headroom():
     try:
         with tracker.reserve_budget(0.01):
             # A projected call covered by this worker's reservation is allowed.
-            tracker.authorize_token_usage(TokenUsage(prompt_tokens=2_500, model="grok-4.5"))
+            tracker.authorize_token_usage(TokenUsage(prompt_tokens=2_500, model="grok-4.7"))
             # Recorded spend consumes this worker's own reservation. A later
             # call that exceeds its remaining headroom must not borrow the
             # reservation held by the other worker.
-            tracker.record(TokenUsage(prompt_tokens=4_500, model="grok-4.5"))
+            tracker.record(TokenUsage(prompt_tokens=4_500, model="grok-4.7"))
             with pytest.raises(ProjectedBudgetExceededError):
-                tracker.authorize_token_usage(TokenUsage(prompt_tokens=2_500, model="grok-4.5"))
+                tracker.authorize_token_usage(TokenUsage(prompt_tokens=2_500, model="grok-4.7"))
     finally:
         release_other.set()
         thread.join(timeout=5)
@@ -1818,7 +1815,7 @@ def test_concurrent_attempt_recording_keeps_exactly_one_row_per_attempt():
     tracker = CostTracker()
     usage = TokenUsage(
         prompt_tokens=100,
-        model="grok-4.5",
+        model="grok-4.7",
         attempt_id="shared-attempt",
     )
     threads = [threading.Thread(target=tracker.record, args=(usage,)) for _ in range(8)]
@@ -1836,10 +1833,10 @@ def test_concurrent_child_keeps_local_history_and_delegates_to_parent():
     parent = CostTracker(budget=0.004)
     first = parent.concurrent_child()
     second = parent.concurrent_child()
-    first_usage = TokenUsage(prompt_tokens=1_000, model="grok-4.5", attempt_id="first")
+    first_usage = TokenUsage(prompt_tokens=1_000, model="grok-4.7", attempt_id="first")
     second_usage = TokenUsage(
         prompt_tokens=500,
-        model="claude-sonnet-5",
+        model="claude-sonnet-5-5",
         attempt_id="second",
     )
 
@@ -1851,14 +1848,14 @@ def test_concurrent_child_keeps_local_history_and_delegates_to_parent():
     assert first.entries == [first_usage]
     assert second.entries == [second_usage]
     assert parent.entries == [first_usage, second_usage]
-    assert first.entries[-1].model == "grok-4.5"
-    assert second.entries[-1].model == "claude-sonnet-5"
+    assert first.entries[-1].model == "grok-4.7"
+    assert second.entries[-1].model == "claude-sonnet-5-5"
 
 
 def test_concurrent_child_authorization_uses_parent_budget():
     parent = CostTracker(budget=0.000001)
     child = parent.concurrent_child()
-    projected = TokenUsage(prompt_tokens=1_000, model="grok-4.5")
+    projected = TokenUsage(prompt_tokens=1_000, model="grok-4.7")
 
     with pytest.raises(ProjectedBudgetExceededError):
         child.authorize_token_usage(projected)
@@ -1884,11 +1881,11 @@ def test_concurrent_child_fixed_price_usage_is_local_and_written_through():
         "deep-research-preview-04-2026",
         outcome="ambiguous",
     )
-    child.authorize_transcription("openai", 60.0, model="whisper-1")
+    child.authorize_transcription("openai", 60.0, model="gpt-transcribe")
     child.record_transcription(
         "openai",
         60.0,
-        model="whisper-1",
+        model="gpt-transcribe",
         outcome="failed",
     )
 
@@ -1920,27 +1917,27 @@ def test_gemini_cost_count_only_fallback():
 def test_record_transcription_cloud_and_local():
     tracker = CostTracker()
     tracker.record_transcription("xai-grok-stt", 3600.0, model="grok-stt")  # 1h @ $0.10
-    tracker.record_transcription("whisper-1", 1800.0)  # 0.5h @ $0.36 = 0.18
+    tracker.record_transcription("gpt-transcribe", 1800.0)  # 0.5h @ $0.27 = 0.135
     tracker.record_transcription("local", 7200.0)  # free
     assert len(tracker.transcriptions) == 3
-    assert round(tracker.total_transcription_cost, 4) == round(0.10 + 0.18, 4)
+    assert round(tracker.total_transcription_cost, 4) == round(0.10 + 0.135, 4)
 
 
 def test_total_cost_includes_transcription():
     tracker = CostTracker()
-    tracker.record(TokenUsage(prompt_tokens=1_000_000, completion_tokens=0, model="grok-4.3"))
+    tracker.record(TokenUsage(prompt_tokens=1_000_000, completion_tokens=0, model="grok-4.7"))
     tracker.record_transcription("xai-grok-stt", 3600.0)
-    # Grok 4.3 long-context input 1M @ $2.50 + transcription 1h @ $0.10.
-    assert round(tracker.total_cost, 4) == round(2.50 + 0.10, 4)
+    # grok-4.7 long-context input 1M @ $4.00 + transcription 1h @ $0.10.
+    assert round(tracker.total_cost, 4) == round(4.00 + 0.10, 4)
 
 
 def test_summary_dict_includes_transcription_when_present():
     tracker = CostTracker()
     assert "transcription_calls" not in tracker.summary_dict()
-    tracker.record_transcription("whisper-1", 3600.0)
+    tracker.record_transcription("gpt-transcribe", 3600.0)
     summary = tracker.summary_dict()
     assert summary["transcription_calls"] == 1
-    assert summary["estimated_transcription_cost"] == "$0.3600"
+    assert summary["estimated_transcription_cost"] == "$0.2700"
     assert summary["transcription_outcomes"] == {"completed": 1}
 
 
@@ -2055,7 +2052,7 @@ def test_discover_cost_keeps_historical_rates_for_metered_routes():
         videos=2,
         sites=3,
         calibration=calibration,
-        router_config=RouterConfig(provider="xai", fast_model="grok-4.3"),
+        router_config=RouterConfig(provider="xai", fast_model="grok-4.7"),
     )
 
     assert estimate == 0.2 + 2 * 0.3 + 3 * 0.4
@@ -2069,7 +2066,7 @@ def test_discover_estimate_prices_only_metered_source_override():
         provider="ollama",
         fast_model="qwen2.5:14b",
         site_provider="anthropic",
-        site_model="claude-sonnet-4",
+        site_model="claude-sonnet-5-5",
     )
 
     estimate = estimate_discover_items(
@@ -2080,8 +2077,8 @@ def test_discover_estimate_prices_only_metered_source_override():
     )
 
     assert estimate.expected == (
-        estimate_stage_cost("paper", model="claude-sonnet-4")
-        + estimate_stage_cost("site_page", model="claude-sonnet-4")
+        estimate_stage_cost("paper", model="claude-sonnet-5-5")
+        + estimate_stage_cost("site_page", model="claude-sonnet-5-5")
     )
 
 
@@ -2094,7 +2091,7 @@ def test_stage_cost_tracks_default_model_pricing():
     # at the default model — i.e. it tracks the model, never a hard-coded rate.
     tin, tout = _STAGE_TOKENS["video_full"]
     assert estimate_stage_cost("video_full") == compute_cost(DEFAULT_MODEL, tin, tout)
-    # grok-4.6 default ($2 / $6): 13k in + 6k out = $0.062.
+    # grok-4.7 default ($2 / $6): 13k in + 6k out = $0.062.
     assert round(estimate_stage_cost("video_full"), 5) == 0.062
 
 

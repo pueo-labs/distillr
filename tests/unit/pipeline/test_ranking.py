@@ -103,7 +103,7 @@ def test_rerank_videos_uses_llm_response_when_available(tmp_path, monkeypatch):
             text='{"ranked_videos": [{"video_id": "v2", "relevance_score": 0.9, "depth_score": 0.8, "practicality_score": 0.8, "freshness_score": 0.7, "credibility_score": 0.6, "final_score": 0.82, "rationale": "best match"}]}',
             input_tokens=100,
             output_tokens=50,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -407,7 +407,7 @@ def test_llm_rerank_ignores_unknown_ids_and_tracks_usage(tmp_path, monkeypatch):
             text='[{"video_id": "missing"}, {"video_id": "v1", "final_score": 0.8}]',
             input_tokens=12,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -558,7 +558,7 @@ def test_rerank_papers_uses_llm_response_when_available(tmp_path, monkeypatch):
             text='{"ranked_papers": [{"paper_id": "p2", "relevance_score": 0.9, "depth_score": 0.8, "novelty_score": 0.7, "credibility_score": 0.8, "final_score": 0.85, "rationale": "best fit"}]}',
             input_tokens=80,
             output_tokens=40,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 
@@ -606,7 +606,7 @@ def test_llm_reranks_pin_temperature_for_reproducible_previews(tmp_path, monkeyp
 
     def fake_llm_call(rc, **kwargs):
         captured.append(kwargs["temperature"])
-        return LLM_Response(text="{}", input_tokens=1, output_tokens=1, model="grok-4.3")
+        return LLM_Response(text="{}", input_tokens=1, output_tokens=1, model="grok-4.7")
 
     monkeypatch.setattr("distill.pipeline.ranking.llm_call", fake_llm_call)
 
@@ -683,7 +683,7 @@ def test_llm_rerank_papers_tracks_usage_and_skips_unknown_ids(tmp_path, monkeypa
             text='[{"paper_id": "missing"}, {"paper_id": "p1", "final_score": 0.8}]',
             input_tokens=10,
             output_tokens=4,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 

@@ -347,7 +347,7 @@ def test_local_ingest_strict_refuses_insight(tmp_path, monkeypatch):
             text="### Claims\n- The benchmark hits 99.9 accuracy.",
             input_tokens=1,
             output_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     config = DistillConfig(
@@ -391,7 +391,7 @@ def test_local_ingest_reports_prose_only_refusal(tmp_path, monkeypatch, capsys):
             ),
             input_tokens=1,
             output_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     config = DistillConfig(

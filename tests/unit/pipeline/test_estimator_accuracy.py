@@ -232,7 +232,7 @@ def test_run_summary_estimate_reaches_the_log(tmp_path):
 
     tracker = CostTracker()
     tracker.record(
-        TokenUsage(prompt_tokens=100, completion_tokens=50, model="grok-4.3", call_type="video")
+        TokenUsage(prompt_tokens=100, completion_tokens=50, model="grok-4.7", call_type="video")
     )
     summary = RunSummary(command="discover", estimated_cost=0.42)
     summary.add_result(VideoResult(video_id="v1", title="t", success=True))

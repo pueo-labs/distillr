@@ -81,7 +81,7 @@ class TestModelSelection:
             text='{"indices": [1, 0]}',
             input_tokens=10,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         chunks = [
             _chunk("Introduction only.", index=0, total=2, heading_context="## Introduction"),
@@ -120,7 +120,7 @@ class TestModelSelection:
             text='{"indices": [0]}',
             input_tokens=10,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
             provider_name="xai",
             provider_type="metered-api",
         )
@@ -269,7 +269,7 @@ class TestBatchModelSelection:
             text='{"assignments": {"limits": [1], "summary": [0]}}',
             input_tokens=10,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         chunks = [
             _chunk("Opening summary text.", index=0, total=2, heading_context="## Intro"),
@@ -325,7 +325,7 @@ class TestBatchModelSelection:
             text="not json",
             input_tokens=1,
             output_tokens=1,
-            model="grok-4.3",
+            model="grok-4.7",
         )
         chunks = [_chunk("only chunk", index=0, total=1)]
         selected, mode = select_chunks_for_category(

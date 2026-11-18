@@ -12,12 +12,12 @@ class TestLLMCallConstruction:
     """Test LLMCall construction with all fields and defaults."""
 
     def test_construction_with_required_fields(self) -> None:
-        call = LLMCall(model="grok-4.3", prompt_hash="sha256:abc123")
-        assert call.model == "grok-4.3"
+        call = LLMCall(model="grok-4.7", prompt_hash="sha256:abc123")
+        assert call.model == "grok-4.7"
         assert call.prompt_hash == "sha256:abc123"
 
     def test_default_values(self) -> None:
-        call = LLMCall(model="grok-4.3", prompt_hash="sha256:abc123")
+        call = LLMCall(model="grok-4.7", prompt_hash="sha256:abc123")
         assert call.prompt_text == ""
         assert call.temperature == 0.0
         assert call.max_tokens == 0
@@ -32,7 +32,7 @@ class TestLLMCallConstruction:
     def test_construction_with_all_fields(self) -> None:
         ts = "2025-06-15T10:30:00+00:00"
         call = LLMCall(
-            model="grok-4.3",
+            model="grok-4.7",
             prompt_hash="sha256:deadbeef",
             prompt_text="Summarize this article.",
             temperature=0.3,
@@ -44,7 +44,7 @@ class TestLLMCallConstruction:
             timestamp=ts,
             attempt=2,
         )
-        assert call.model == "grok-4.3"
+        assert call.model == "grok-4.7"
         assert call.prompt_hash == "sha256:deadbeef"
         assert call.prompt_text == "Summarize this article."
         assert call.temperature == 0.3
@@ -68,16 +68,16 @@ class TestLLMCallSucceeded:
     """Test the succeeded property."""
 
     def test_succeeded_when_no_error(self) -> None:
-        call = LLMCall(model="grok-4.3", prompt_hash="h", error_message="")
+        call = LLMCall(model="grok-4.7", prompt_hash="h", error_message="")
         assert call.succeeded is True
 
     def test_not_succeeded_when_error(self) -> None:
-        call = LLMCall(model="grok-4.3", prompt_hash="h", error_message="timeout")
+        call = LLMCall(model="grok-4.7", prompt_hash="h", error_message="timeout")
         assert call.succeeded is False
 
     def test_not_succeeded_with_detailed_error(self) -> None:
         call = LLMCall(
-            model="grok-4.3",
+            model="grok-4.7",
             prompt_hash="h",
             error_message="HTTP 429: Rate limit exceeded",
         )
@@ -89,7 +89,7 @@ class TestLLMCallToDict:
 
     def test_to_dict_returns_all_fields(self) -> None:
         call = LLMCall(
-            model="grok-4.3",
+            model="grok-4.7",
             prompt_hash="sha256:abc",
             prompt_text="hello",
             temperature=0.7,
@@ -102,7 +102,7 @@ class TestLLMCallToDict:
             attempt=1,
         )
         d = call.to_dict()
-        assert d["model"] == "grok-4.3"
+        assert d["model"] == "grok-4.7"
         assert d["prompt_hash"] == "sha256:abc"
         assert d["prompt_text"] == "hello"
         assert d["temperature"] == 0.7
@@ -123,7 +123,7 @@ class TestLLMCallToDict:
 
     def test_to_dict_with_error(self) -> None:
         call = LLMCall(
-            model="grok-4.3",
+            model="grok-4.7",
             prompt_hash="sha256:err",
             error_message="Connection refused",
             attempt=3,

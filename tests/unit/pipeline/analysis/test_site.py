@@ -20,7 +20,7 @@ from distill.pipeline.synthesis.topic import synthesize_topic
 from distill.prompts.registry import PROMPT_IDS
 
 
-def _fake_llm_call(text: str = "body", model: str = "grok-4.3"):
+def _fake_llm_call(text: str = "body", model: str = "grok-4.7"):
     def _call(config, workload_tag, prompt, **kwargs):
         return LLM_Response(text=text, input_tokens=10, output_tokens=20, model=model)
 
@@ -49,7 +49,7 @@ def test_analyze_site_page_builds_frontmatter(tmp_path):
 
     assert 'page_title: "Agent \\"Overview\\""' in result
     assert 'site: "example.com"' in result
-    assert "analyzed_by: grok-4.3" in result
+    assert "analyzed_by: grok-4.7" in result
     assert result.rstrip().endswith("site body")
     assert len(tracker.entries) == 1
     assert tracker.entries[0].call_type == "site_page"

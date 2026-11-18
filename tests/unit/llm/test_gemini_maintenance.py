@@ -9,8 +9,8 @@ from distill.llm.router import ConfigurationError, RouterConfig
 @pytest.mark.parametrize(
     "day,model,expected",
     [
-        (date(2026, 11, 30), "gemini-4-argon", {"input": 2.0, "output": 10.0}),
-        (date(2026, 12, 1), "gemini-4-argon", {"input": 4.0, "output": 20.0}),
+        (date(2026, 11, 30), "gemini-4-carbon", {"input": 2.0, "output": 10.0}),
+        (date(2026, 12, 1), "gemini-4-carbon", {"input": 4.0, "output": 20.0}),
         (date(2026, 12, 31), "gemini-3.8-flash", {"input": 0.75, "output": 3.75}),
         (date(2027, 1, 1), "gemini-3.8-flash", {"input": 1.5, "output": 7.5}),
     ],

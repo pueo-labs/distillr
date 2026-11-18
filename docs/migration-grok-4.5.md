@@ -1,15 +1,15 @@
 # Grok 4.5 default migration
 
-This is the historical guide for the 2026-08-13 move to Grok 4.5. xAI now
-documents Grok 4.6 as its flagship model, and current Distill releases default
-to `grok-4.6`. See the [Grok 4.6 default migration](migration-grok-4.6.md) for
-the active registry, pricing, context, and override behavior.
+This is the historical guide for the 2026-08-13 move to Grok 4.5. Current
+Distill releases default to `grok-4.7` and rewrite earlier xAI text ids to
+that model before a call. See the
+[Grok 4.7 default migration](migration-grok-4.7.md).
 
 This is a default change, not a forced migration. Existing environment and
 per-workload overrides keep their configured model IDs. A user who has pinned
 `grok-4.3` continues to use `grok-4.3` and its registry price.
 
-## Current registry facts
+## August 2026 registry facts
 
 | Model | Input per 1M | Output per 1M | Context | Distill status |
 |---|---:|---:|---:|---|

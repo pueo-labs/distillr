@@ -103,7 +103,7 @@ def test_save_then_load_round_trips_all_source_types(tmp_path):
     saved = save_preview(
         cache,
         goal="learn X",
-        model="grok-4.3",
+        model="grok-4.7",
         rigor="balanced",
         items=items,
         estimate=_estimate(),
@@ -175,7 +175,7 @@ def test_concurrent_identical_saves_leave_one_complete_snapshot(tmp_path):
         return save_preview(
             cache,
             goal="concurrent goal",
-            model="grok-4.3",
+            model="grok-4.7",
             rigor="balanced",
             items=[_paper_item(), _video_item()],
             estimate=_estimate(),

@@ -13,7 +13,7 @@ import pytest
 
 from distill.config import DistillConfig
 from distill.doctor import checks
-from distill.llm.router import RETIRED_MODELS, RETIREMENT_DATE
+from distill.llm.model_policy import RETIRED_MODELS, RETIREMENT_DATE
 from distill.pipeline.costs import CostTracker
 
 
@@ -143,13 +143,13 @@ def test_doctor_validate_xai_key_success_uses_configured_analysis_model(
         "xai",
         DistillConfig(
             xai_api_key="test-key",
-            xai_analysis_model="grok-4.3",
+            xai_analysis_model="grok-4.7",
             distill_output_dir=tmp_path,
         ),
     )
 
-    assert (status, detail) == ("ok", "grok-4.3")
-    assert calls[0]["model"] == "grok-4.3"
+    assert (status, detail) == ("ok", "grok-4.7")
+    assert calls[0]["model"] == "grok-4.7"
     assert calls[0]["max_completion_tokens"] == 5
     assert [(directory, command) for directory, command, _tracker in saves] == [
         (tmp_path, "doctor")
@@ -174,7 +174,7 @@ def test_doctor_key_probe_budget_refuses_before_provider_contact(
         "xai",
         DistillConfig(
             xai_api_key="test-key",
-            xai_analysis_model="grok-4.3",
+            xai_analysis_model="grok-4.7",
             distill_output_dir=tmp_path,
             distill_cost_workflow_budgets="doctor=0.000001",
         ),
@@ -437,14 +437,14 @@ def test_doctor_validate_anthropic_key_success(monkeypatch, tmp_path: Path) -> N
         DistillConfig(anthropic_api_key="test-key", distill_output_dir=tmp_path),
     )
 
-    assert (status, detail) == ("ok", "claude-sonnet-5")
+    assert (status, detail) == ("ok", "claude-sonnet-5-5")
     assert calls[0]["headers"] == {
         "x-api-key": "test-key",
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
     }
     assert calls[0]["json"] == {
-        "model": "claude-sonnet-5",
+        "model": "claude-sonnet-5-5",
         "max_tokens": 1,
         "messages": [{"role": "user", "content": "hi"}],
         "output_config": {"effort": "low"},
@@ -508,9 +508,12 @@ def test_doctor_validate_openai_key_success(monkeypatch, tmp_path: Path) -> None
         DistillConfig(openai_api_key="test-key", distill_output_dir=tmp_path),
     )
 
-    assert (status, detail) == ("ok", "gpt-4.1-mini")
-    assert calls[0]["model"] == "gpt-4.1-mini"
-    assert calls[0]["max_tokens"] == 5
+    assert (status, detail) == ("ok", "gpt-6-luna")
+    assert calls[0]["model"] == "gpt-6-luna"
+    assert calls[0]["max_completion_tokens"] == 5
+    assert calls[0]["reasoning_effort"] == "none"
+    assert "max_tokens" not in calls[0]
+    assert "temperature" not in calls[0]
 
 
 def test_check_ollama_status_uses_running_loop_fallback(monkeypatch) -> None:

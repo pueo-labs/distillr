@@ -46,7 +46,7 @@ def _patch(monkeypatch, *, insight_text: str):
         repo_mod,
         "llm_call",
         lambda rc, **kwargs: LLM_Response(
-            text=insight_text, input_tokens=10, output_tokens=5, model="grok-4.3"
+            text=insight_text, input_tokens=10, output_tokens=5, model="grok-4.7"
         ),
     )
 
@@ -122,7 +122,7 @@ def test_repo_reingest_refusal_invalidates_prior_insight_generation(config, monk
             text=next(responses),
             input_tokens=10,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
     config.distill_verify = "strict"
@@ -183,7 +183,7 @@ def test_repo_capture_only_reingest_invalidates_prior_insight_generation(config,
             text="## Summary\nReaches 72.6 accuracy with 1,234 users.",
             input_tokens=10,
             output_tokens=5,
-            model="grok-4.3",
+            model="grok-4.7",
         ),
     )
 

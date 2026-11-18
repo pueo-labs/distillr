@@ -31,10 +31,11 @@ Task-oriented recipes for a specific goal.
 - [Interoperability standards](interoperability.md) - exact Agent Plugins,
   Agent Skills, and OKF baselines, portable boundaries, and update policy.
 - [Briefing context template](briefing-contexts/TEMPLATE.md) - starting point for `--context-file` prompts.
-- [Grok 4.6 default migration](migration-grok-4.6.md) - current xAI default,
-  pricing, context, and override behavior.
-- [Gemini 3.7 Flash migration](migration-gemini-3.7.md) - current optional
-  Google-provider default, pricing window, and compatibility behavior.
+- [Grok 4.7 default migration](migration-grok-4.7.md) - current xAI default.
+  Earlier xAI text ids are rewritten to it.
+- [Grok 4.6 default migration](migration-grok-4.6.md) - previous xAI default.
+- [Gemini 3.7 Flash migration](migration-gemini-3.7.md) - previous optional
+  Google default. Current Gemini chat default is `gemini-3.8-flash`.
 - [Grok 4.5 default migration](migration-grok-4.5.md) - historical guide for
   the previous default.
 - [Grok 4.3 migration](migration-grok-4.3.md) - historical guide for moving

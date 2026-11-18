@@ -76,7 +76,7 @@ def test_cost_computation_correctness(model: str, input_tokens: int, output_toke
 def test_all_listed_models_return_correct_pricing() -> None:
     """Every model in PRICING is retrievable via get_pricing with exact match."""
     for model, expected_rates in PRICING.items():
-        if model in {"gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-4-argon"}:
+        if model in {"gemini-3.8-flash", "gemini-4-carbon"}:
             rates = get_pricing(model)
             assert set(rates) == set(expected_rates)
             continue
@@ -84,10 +84,10 @@ def test_all_listed_models_return_correct_pricing() -> None:
 
 
 def test_openrouter_known_author_slug_uses_underlying_registered_pricing() -> None:
-    assert get_pricing("x-ai/grok-4.6") == get_pricing("grok-4.6")
-    assert get_pricing("anthropic/claude-sonnet-4") == get_pricing("claude-sonnet-4")
+    assert get_pricing("x-ai/grok-4.7") == get_pricing("grok-4.7")
+    assert get_pricing("anthropic/claude-sonnet-5.5") == get_pricing("claude-sonnet-5.5")
     assert get_pricing("deepseek/deepseek-v4.1-flash") == get_pricing("deepseek-v4.1-flash")
-    assert has_known_pricing("google/gemini-3.1-flash") is True
+    assert has_known_pricing("google/gemini-3.8-flash") is True
     assert has_known_pricing("deepseek/deepseek-v4.1-flash") is True
     assert has_known_pricing("meta-llama/llama-3.3-70b-instruct") is False
 
@@ -104,7 +104,7 @@ def test_unknown_model_falls_back_to_default(caplog: Any) -> None:
 def test_deep_research_aliases_are_nonbinding_planning_prices() -> None:
     assert is_nonbinding_planning_price("deep-research-preview-04-2026")
     assert is_nonbinding_planning_price("deep-research-max-preview-04-2026")
-    assert not is_nonbinding_planning_price("grok-4.6")
+    assert not is_nonbinding_planning_price("grok-4.7")
     assert not is_nonbinding_planning_price("unknown-model")
 
 
@@ -136,49 +136,30 @@ def test_deep_research_aliases_use_per_query_pricing(model: str) -> None:
 
 
 def test_prefix_matching_for_versioned_model_names() -> None:
-    """Versioned model names (e.g. 'grok-4.3-beta') match the base model."""
-    result = get_pricing("grok-4.3-beta")
-    assert result == PRICING["grok-4.3"]
+    """Versioned model names (e.g. 'grok-4.7-beta') match the base model."""
+    result = get_pricing("grok-4.7-beta")
+    assert result == PRICING["grok-4.7"]
 
-    result2 = get_pricing("gemini-3.1-pro-preview-latest")
-    assert result2 == PRICING["gemini-3.1-pro-preview"]
+    result2 = get_pricing("gemini-3.8-flash-latest")
+    assert result2 == get_pricing("gemini-3.8-flash")
 
 
 @pytest.mark.parametrize(
     "model,expected_input,expected_output",
     [
         ("grok-4.7", 2.00, 6.00),
-        ("grok-4.6", 2.00, 6.00),
-        ("grok-4.5", 2.00, 6.00),
-        ("grok-4.3", 1.25, 2.50),
-        ("grok-4-1-fast-reasoning", 0.20, 0.50),
-        ("grok-4.20-0309-non-reasoning", 1.25, 2.50),
-        ("grok-4.20-0309-reasoning", 1.25, 2.50),
-        ("grok-4.20", 1.25, 2.50),
-        ("gemini-3.5-flash", 1.50, 9.00),
         ("gemini-3.5-flash-lite", 0.30, 2.50),
-        ("gemini-3.1-pro-preview", 2.00, 12.00),
-        ("gemini-3.1-pro", 2.00, 12.00),
-        ("gemini-3.1-flash", 0.25, 1.50),
-        ("claude-fable-5", 10.00, 50.00),
-        ("claude-mythos-5", 10.00, 50.00),
-        ("claude-opus-5", 5.00, 25.00),
+        ("claude-fable-5-2", 8.00, 40.00),
+        ("claude-mythos-5-2", 8.00, 40.00),
         ("claude-opus-5-5", 4.00, 20.00),
         ("anthropic/claude-opus-5.5", 4.00, 20.00),
         ("claude-sonnet-5-5", 2.00, 10.00),
         ("anthropic/claude-sonnet-5.5", 2.00, 10.00),
-        ("claude-sonnet-4", 3.00, 15.00),
-        ("claude-haiku-4-5", 1.00, 5.00),
-        ("claude-haiku-4", 0.80, 4.00),
-        ("gpt-5.6-sol", 5.00, 30.00),
+        ("claude-haiku-5-5", 0.10, 0.50),
         ("gpt-6-astra", 10.00, 50.00),
         ("gpt-6.1-sol", 2.00, 10.00),
+        ("gpt-6.1-terra", 1.00, 5.00),
         ("gpt-6-luna", 0.10, 0.50),
-        ("gpt-5.6", 5.00, 30.00),
-        ("gpt-5.6-terra", 2.50, 15.00),
-        ("gpt-5.6-luna", 1.00, 6.00),
-        ("gpt-4.1", 2.00, 8.00),
-        ("gpt-4.1-mini", 0.40, 1.60),
     ],
 )
 def test_per_token_model_rates(model: str, expected_input: float, expected_output: float) -> None:
@@ -193,15 +174,10 @@ def test_per_token_model_rates(model: str, expected_input: float, expected_outpu
     [
         ("grok-4.7", 200_000, 0.999998, 2.0),
         ("x-ai/grok-4.7", 200_000, 0.999998, 2.0),
-        ("grok-4.6", 200_000, 0.999998, 2.0),
-        ("grok-4.3", 200_000, 0.49999875, 1.0),
-        ("gemini-3.1-pro-preview", 200_001, 1.6, 2.600004),
-        ("gpt-5.6", 272_001, 4.36, 7.22001),
-        ("gpt-5.6-sol", 272_001, 4.36, 7.22001),
-        ("gpt-5.6-terra", 272_001, 2.18, 3.610005),
-        ("gpt-5.6-luna", 272_001, 0.872, 1.444002),
+        ("claude-haiku-5-5", 100_001, 0.06, 0.3000005),
         ("gpt-6-astra", 272_001, 7.72, 12.94002),
         ("gpt-6.1-sol", 272_001, 1.544, 2.588004),
+        ("gpt-6.1-terra", 272_001, 0.772, 1.294002),
         ("gpt-6-luna", 272_001, 0.0772, 0.1294002),
     ],
 )
@@ -224,65 +200,21 @@ def test_sonnet5_permanent_pricing_after_cancelled_increase(
 
     monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2026, 9, 1))
 
-    rates = get_pricing("claude-sonnet-5")
+    rates = get_pricing("claude-sonnet-5-5")
     assert rates["input"] == 2.00
     assert rates["output"] == 10.00
-    assert compute_cost("claude-sonnet-5", 1_000_000, 1_000_000) == 12.0
+    assert compute_cost("claude-sonnet-5-5", 1_000_000, 1_000_000) == 12.0
 
 
-def test_sonnet5_intro_pricing_before_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_sonnet55_price_is_flat_before_old_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
     import distill.llm.cost as cost_mod
 
     monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2026, 8, 13))
 
-    rates = get_pricing("claude-sonnet-5")
+    rates = get_pricing("claude-sonnet-5-5")
     assert rates["input"] == 2.00
     assert rates["output"] == 10.00
-    assert compute_cost("claude-sonnet-5", 1_000_000, 1_000_000) == 12.0
-
-
-def test_gemini36_launch_pricing_before_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
-    import distill.llm.cost as cost_mod
-
-    monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2026, 8, 13))
-
-    rates = get_pricing("gemini-3.6-flash")
-    assert rates["input"] == 0.75
-    assert rates["output"] == 3.75
-    assert compute_cost("gemini-3.6-flash", 1_000_000, 1_000_000) == 4.5
-
-
-def test_gemini37_launch_pricing_before_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
-    import distill.llm.cost as cost_mod
-
-    monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2026, 8, 13))
-
-    rates = get_pricing("gemini-3.7-flash")
-    assert rates["input"] == 0.75
-    assert rates["output"] == 3.75
-    assert compute_cost("gemini-3.7-flash", 1_000_000, 1_000_000) == 4.5
-
-
-def test_gemini36_standard_pricing_after_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
-    import distill.llm.cost as cost_mod
-
-    monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2027, 1, 1))
-
-    rates = get_pricing("gemini-3.6-flash")
-    assert rates["input"] == 1.50
-    assert rates["output"] == 7.50
-    assert compute_cost("gemini-3.6-flash", 1_000_000, 1_000_000) == 9.0
-
-
-def test_gemini37_standard_pricing_after_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
-    import distill.llm.cost as cost_mod
-
-    monkeypatch.setattr(cost_mod, "_pricing_reference_date", lambda: date(2027, 1, 1))
-
-    rates = get_pricing("gemini-3.7-flash")
-    assert rates["input"] == 1.50
-    assert rates["output"] == 7.50
-    assert compute_cost("gemini-3.7-flash", 1_000_000, 1_000_000) == 9.0
+    assert compute_cost("claude-sonnet-5-5", 1_000_000, 1_000_000) == 12.0
 
 
 def test_gemini38_standard_pricing_after_cutover(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -298,12 +230,12 @@ def test_gemini38_standard_pricing_after_cutover(monkeypatch: pytest.MonkeyPatch
 
 def test_pricing_sources_are_auditable_without_network_access() -> None:
     assert PRICING_VERIFIED_ON == "2026-10-06"
-    assert pricing_source_for_model("grok-4.6") == PRICING_SOURCE_URLS["xai"]
+    assert pricing_source_for_model("grok-4.7") == PRICING_SOURCE_URLS["xai"]
     assert pricing_source_for_model("gemini-3.8-flash") == PRICING_SOURCE_URLS["gemini"]
-    assert pricing_source_for_model("gemini-3.7-flash") == PRICING_SOURCE_URLS["gemini"]
-    assert pricing_source_for_model("claude-fable-5.1") == PRICING_SOURCE_URLS["anthropic"]
-    assert pricing_source_for_model("claude-sonnet-5") == PRICING_SOURCE_URLS["anthropic"]
-    assert pricing_source_for_model("gpt-5.6-luna") == PRICING_SOURCE_URLS["openai"]
+    assert pricing_source_for_model("gemini-4-carbon") == PRICING_SOURCE_URLS["gemini"]
+    assert pricing_source_for_model("claude-fable-5-2") == PRICING_SOURCE_URLS["anthropic"]
+    assert pricing_source_for_model("claude-sonnet-5-5") == PRICING_SOURCE_URLS["anthropic"]
+    assert pricing_source_for_model("gpt-6-luna") == PRICING_SOURCE_URLS["openai"]
     assert pricing_source_for_model("deepseek-v4.1-flash") == PRICING_SOURCE_URLS["deepseek"]
     assert (
         pricing_source_for_model("deepseek/deepseek-v4.1-flash")
@@ -373,7 +305,9 @@ def test_deep_research_query_cost_model_aware() -> None:
 
 def test_transcription_cost() -> None:
     assert transcription_cost("xai-grok-stt", 3600.0) == 0.10
-    assert round(transcription_cost("whisper-1", 1800.0), 4) == 0.18
+    assert round(transcription_cost("gpt-transcribe", 1800.0), 4) == 0.135
+    assert round(transcription_cost("openai", 3600.0), 4) == 0.27
+    assert round(transcription_cost("openai", 3600.0, model="gpt-transcribe"), 4) == 0.27
     assert transcription_cost("local", 3600.0) == 0.0
     assert transcription_cost("unknown-provider", 3600.0) == 0.0
 
@@ -384,16 +318,15 @@ def test_transcription_cost() -> None:
 )
 def test_transcription_cost_rejects_invalid_duration(duration: object) -> None:
     with pytest.raises(ValueError, match="transcription duration"):
-        transcription_cost("whisper-1", duration)
+        transcription_cost("gpt-transcribe", duration)
 
 
 @pytest.mark.parametrize(
     ("model", "expected_input", "expected_output"),
     [
-        ("claude-opus-5", 5.00, 25.00),
-        ("claude-opus-4-8", 5.00, 25.00),
-        ("claude-opus-4-7", 5.00, 25.00),
-        ("claude-opus-4-6", 5.00, 25.00),
+        ("claude-opus-5-5", 4.00, 20.00),
+        ("claude-opus-5.5", 4.00, 20.00),
+        ("anthropic/claude-opus-5.5", 4.00, 20.00),
     ],
 )
 def test_opus_tier_is_priced(model: str, expected_input: float, expected_output: float) -> None:
@@ -405,7 +338,7 @@ def test_opus_tier_is_priced(model: str, expected_input: float, expected_output:
 
 @pytest.mark.parametrize(
     "model",
-    ["Claude-Opus-4-8", "CLAUDE-OPUS-4-8", "  claude-opus-4-8  ", "Gemini-3.6-Flash"],
+    ["Claude-Opus-5-5", "CLAUDE-OPUS-5-5", "  claude-opus-5-5  ", "Gemini-3.5-Flash-Lite"],
 )
 def test_pricing_lookup_is_case_and_whitespace_insensitive(model: str) -> None:
     """A differently-cased model id must not silently fall back to DEFAULT_MODEL.

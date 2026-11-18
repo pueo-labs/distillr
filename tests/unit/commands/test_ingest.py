@@ -132,7 +132,7 @@ def test_ingest_cmd_persists_metered_usage(tmp_path: Path, monkeypatch: pytest.M
             TokenUsage(
                 prompt_tokens=1_000,
                 completion_tokens=500,
-                model="grok-4.3",
+                model="grok-4.7",
                 call_type="tweet_analysis",
                 provider_name="xai",
                 provider_type="cloud",
@@ -150,7 +150,7 @@ def test_ingest_cmd_persists_metered_usage(tmp_path: Path, monkeypatch: pytest.M
     assert result.exit_code == 0, result.output
     [row] = _cost_rows(config)
     assert row["command"] == "ingest"
-    assert row["actual_cost"] == pytest.approx(0.0025)
+    assert row["actual_cost"] == pytest.approx(0.005)
     assert row["usage_ledger"]["metered_llm_calls"] == 1
     assert row["metadata"] == {
         "topic": "agents",
@@ -314,7 +314,7 @@ def test_ingest_cmd_persists_budget_crossing_usage(
         tracker.record(
             TokenUsage(
                 prompt_tokens=1_000_000,
-                model="grok-4.3",
+                model="grok-4.7",
                 call_type="tweet_analysis",
                 provider_name="xai",
                 provider_type="cloud",
@@ -329,7 +329,7 @@ def test_ingest_cmd_persists_budget_crossing_usage(
     assert result.exit_code == 1
     assert isinstance(result.exception, BudgetExceededError)
     [row] = _cost_rows(config)
-    assert row["actual_cost"] == pytest.approx(2.50)
+    assert row["actual_cost"] == pytest.approx(4.00)
     assert row["usage_ledger"]["metered_llm_calls"] == 1
     assert row["metadata"]["source_type"] == "x"
 

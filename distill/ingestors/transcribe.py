@@ -5,10 +5,9 @@ podcasts, etc.) we need to transcribe the audio. Provider ladder:
 
 1. **Local** (``faster-whisper`` ``large-v3`` on CUDA / CPU) — preferred;
    honors the roadmap's local-first principle. Zero per-use cost.
-2. **Cloud xAI Grok STT** — first cloud fallback. ~$0.10/hour batch
-   (3.6x cheaper than OpenAI Whisper). Reuses the existing
-   ``XAI_API_KEY`` distillr already requires for analysis.
-3. **Cloud OpenAI Whisper-1** — final fallback at ~$0.36/hour.
+2. **Cloud xAI Grok STT.** First cloud fallback at about $0.10/hour.
+   Reuses the existing ``XAI_API_KEY`` distillr already requires for analysis.
+3. **Cloud OpenAI ``gpt-transcribe``.** Final fallback at $0.27/hour.
 
 Each cloud provider is skipped if its API key isn't configured; local
 is skipped if the optional ``faster-whisper`` dependency is missing.
@@ -505,9 +504,9 @@ def _transcribe_media_snapshot(
       whose dependency or key isn't available).
     - ``"local"``: local only; raise if unavailable.
     - ``"grok"``: xAI Grok STT only.
-    - ``"cloud"``: cloud-only ladder, Grok STT then OpenAI Whisper-1,
+    - ``"cloud"``: cloud-only ladder, Grok STT then OpenAI ``gpt-transcribe``,
       skipping a provider when its key is unavailable.
-    - ``"openai"``: OpenAI Whisper-1 only.
+    - ``"openai"``: OpenAI ``gpt-transcribe`` only.
 
     ``vocabulary_hint`` is a short free-text string of proper nouns,
     product names, and technical terms the source is likely to discuss.
@@ -567,7 +566,7 @@ def _transcribe_media_snapshot(
             route_name="openai",
             policy_provider="openai",
             ledger_provider="openai",
-            model="whisper-1",
+            model="gpt-transcribe",
             api_key=openai_api_key,
             fn=lambda: _transcribe_openai(media_path, config, vocabulary_hint=vocabulary_hint),
             must_succeed=True,
@@ -912,7 +911,7 @@ def _pick_device() -> tuple[str, str]:
 def _transcribe_openai(
     media_path: Path, config: DistillConfig, *, vocabulary_hint: str = ""
 ) -> TranscriptionResult:
-    """Transcribe via the OpenAI Whisper API (final cloud fallback).
+    """Transcribe via OpenAI ``gpt-transcribe`` (final cloud fallback).
 
     Delegates the client construction to ``distill.llm.whisper`` so the
     OpenAI() client stays inside ``distill/llm/`` per the architectural
@@ -932,14 +931,14 @@ def _transcribe_openai(
     text = transcribe_with_openai(
         media_path,
         api_key=api_key,
-        model="whisper-1",
+        model="gpt-transcribe",
         vocabulary_hint=clipped_hint,
     )
     notes = [f"vocab_hint={len(clipped_hint)} chars"] if clipped_hint else []
     return TranscriptionResult(
         text=text,
         provider="openai",
-        model="whisper-1",
+        model="gpt-transcribe",
         notes=notes,
     )
 
@@ -953,7 +952,7 @@ def _transcribe_grok(
 ) -> TranscriptionResult:
     """Transcribe via xAI Grok STT (first cloud fallback).
 
-    Cheaper than OpenAI Whisper-1 ($0.10/hr vs $0.36/hr) and reuses
+    Cheaper than OpenAI gpt-transcribe ($0.10/hr vs $0.27/hr) and reuses
     the ``XAI_API_KEY`` distillr already requires for analysis. Lives
     inside ``distill.llm.grok_stt`` for the same containment reason as
     the OpenAI client.
